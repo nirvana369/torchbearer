@@ -1,4 +1,4 @@
-import { SiFacebook, SiInstagram } from 'react-icons/si';
+import { SiFacebook, SiInstagram, SiX, SiZalo } from 'react-icons/si';
 import { useGetFooterData } from '../hooks/useQueries';
 
 const Footer = () => {
@@ -9,6 +9,8 @@ const Footer = () => {
 
   const getSocialIcon = (url: string) => {
     if (url.includes('facebook')) return <SiFacebook className="h-5 w-5" />;
+    if (url.includes('x')) return <SiX className="h-5 w-5" />;
+    if (url.includes('zalo')) return <SiZalo className="h-5 w-5" />;
     if (url.includes('instagram')) return <SiInstagram className="h-5 w-5" />;
     return null;
   };

@@ -159,7 +159,7 @@ persistent actor {
 
   let accessControlState = AccessControl.initState();
   // include MixinAuthorization(accessControlState);
-
+  // transient 
   var adminCms : AdminCMS.AdminCMSData = AdminCMS.init();
   let userProfiles = Map.empty<Principal, UserProfile>();
   let categories = Map.empty<Text, Category>();
@@ -179,19 +179,19 @@ persistent actor {
       {
         title = "Cơ sở sản xuất hiện đại";
         description = "Kết hợp công nghệ tiên tiến với kỹ thuật truyền thống.";
-        mediaUrl = "wine-cellar.jpg";
+        mediaUrl = "wine.jpg";
       },
       {
         title = "Cam kết chất lượng";
         description = "Mỗi chai rượu là sự kết tinh của tâm huyết và đam mê.";
-        mediaUrl = "vineyard.jpg";
+        mediaUrl = "wine.jpg";
       },
     ];
     processSteps = [
       {
         stepTitle = "Quy trình sản xuất";
         description = "Các bước làm rượu chuyên nghiệp và kiểm soát chất lượng.";
-        mediaUrl = "wine-making.jpg";
+        mediaUrl = "wine.jpg";
       },
     ];
     teamMembers = [
@@ -684,7 +684,7 @@ persistent actor {
         {
           title = "Chất lượng vượt trội";
           description = "Kết hợp truyền thống và hiện đại để mang đến sản phẩm cao cấp.";
-          mediaUrl = "vineyard.jpg";
+          mediaUrl = "wine.jpg";
         },
       ];
       processSteps = [

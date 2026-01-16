@@ -177,7 +177,7 @@ export default function MediaEditor() {
 
                     {item.mediaType === 'image' && item.url && (
                       <img
-                        src={`/assets/generated/${item.url}`}
+                        src={`/assets/${item.url}`}
                         alt={item.caption || 'Media preview'}
                         className="w-full h-32 rounded border object-cover"
                         onError={(e) => {

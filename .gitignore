@@ -1,6 +1,7 @@
 # Various IDEs and Editors
 .vscode/
 .idea/
+.mops/
 **/*~
 
 # Mac OSX temporary files

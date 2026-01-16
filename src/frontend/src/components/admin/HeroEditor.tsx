@@ -23,7 +23,7 @@ export default function HeroEditor() {
   // Multi-image state (frontend-only until backend is updated)
   const [heroImages, setHeroImages] = useState<string[]>([
     'hero-vineyard.dim_1920x1080.jpg',
-    'vineyard-aerial.dim_1200x800.jpg',
+    'wine.jpg',
     'wine-cellar.dim_1024x768.jpg',
   ]);
   const [videoUrl, setVideoUrl] = useState<string>('');
@@ -141,10 +141,10 @@ export default function HeroEditor() {
   }
 
   const getPreviewImageUrl = (imageUrl: string) => {
-    if (!imageUrl) return '/assets/generated/hero-vineyard.dim_1920x1080.jpg';
+    if (!imageUrl) return '/assets/hero-vineyard.dim_1920x1080.jpg';
     return imageUrl.startsWith('http')
       ? imageUrl
-      : `/assets/generated/${imageUrl}`;
+      : `/assets/${imageUrl}`;
   };
 
   const currentPreviewImage = videoUrl 
@@ -228,7 +228,7 @@ export default function HeroEditor() {
                         index === currentPreviewIndex ? 'opacity-100' : 'opacity-0'
                       }`}
                       onError={(e) => {
-                        e.currentTarget.src = '/assets/generated/hero-vineyard.dim_1920x1080.jpg';
+                        e.currentTarget.src = '/assets/hero-vineyard.dim_1920x1080.jpg';
                       }}
                     />
                   ))}
@@ -313,7 +313,7 @@ export default function HeroEditor() {
                     alt={`Preview ${index + 1}`}
                     className="w-full h-32 object-cover rounded"
                     onError={(e) => {
-                      e.currentTarget.src = '/assets/generated/hero-vineyard.dim_1920x1080.jpg';
+                      e.currentTarget.src = '/assets/hero-vineyard.dim_1920x1080.jpg';
                     }}
                   />
                 )}

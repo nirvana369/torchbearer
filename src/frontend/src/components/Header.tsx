@@ -46,13 +46,14 @@ const Header = () => {
   };
 
   const logoUrl = headerData?.mediaUrl 
-    ? `/assets/generated/${headerData.mediaUrl}`
-    : '/assets/generated/wine-logo-transparent.dim_200x200.png';
+    ? `/assets/${headerData.mediaUrl}`
+    : '/assets/logo.webp';
 
   const brandName = headerData?.title || 'Torch Bearer Tasmania';
 
   return (
     <header
+      // className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/95 backdrop-blur-md shadow-md`}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
           ? 'bg-background/95 backdrop-blur-md shadow-md'
@@ -71,12 +72,13 @@ const Header = () => {
               <img
                 src={logoUrl}
                 alt={brandName}
-                className="h-12 w-12 transition-transform group-hover:scale-110"
+                // className="h-12 w-12 transition-transform group-hover:scale-110"
+                className="transition-transform group-hover:scale-110"
               />
             )}
-            <span className="text-2xl font-bold text-primary">
+            {/* <span className="text-2xl font-bold text-primary">
               {brandName}
-            </span>
+            </span> */}
           </button>
 
           <nav className="hidden md:flex items-center space-x-8">
@@ -84,7 +86,7 @@ const Header = () => {
               <button
                 key={item.label}
                 onClick={() => handleNavigation(item.href, item.isRoute)}
-                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+                className="text-[#8B6508] hover:text-[#D4AF37] transition-colors font-medium"
               >
                 {item.label}
               </button>
@@ -92,7 +94,7 @@ const Header = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="relative"
+              className="relative text-[#8B6508] hover:text-[#D4AF37]"
               onClick={() => navigate({ to: '/cart' })}
             >
               <ShoppingCart className="h-5 w-5" />

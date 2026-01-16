@@ -144,7 +144,7 @@ export default function TeamEditor() {
                   <Input
                     value={member.imageUrl}
                     onChange={(e) => handleUpdateMember(index, 'imageUrl', e.target.value)}
-                    placeholder="/assets/generated/sommelier-female.dim_400x400.jpg"
+                    placeholder="/assets/sommelier-female.dim_400x400.jpg"
                   />
                   {member.imageUrl && (
                     <img

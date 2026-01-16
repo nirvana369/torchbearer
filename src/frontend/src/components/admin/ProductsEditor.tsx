@@ -10,7 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useGetProducts, useAddProduct, useUpdateProduct, useDeleteProduct, useGetCategories } from '../../hooks/useQueries';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
-import type { Product } from '../../backend';
+import type { Product } from '../../../../declarations/backend/backend.did';
 
 export default function ProductsEditor() {
   const { data: productsData, isLoading } = useGetProducts();
@@ -123,7 +123,7 @@ export default function ProductsEditor() {
     if (!url) return '';
     if (url.startsWith('/')) return url;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    return `/assets/generated/${url}`;
+    return `/assets/${url}`;
   };
 
   const getCategoryName = (categoryId: string): string => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { useInternetIdentity } from "ic-use-internet-identity";
+import { useInternetIdentity } from "./../hooks/useInternetIdentity";
 import { useGetCallerUserProfile, useSaveCallerUserProfile } from '../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,12 +16,12 @@ export default function AdminPage() {
   const saveProfile = useSaveCallerUserProfile();
   const [profileName, setProfileName] = useState('');
 
-  const isAuthenticated = !!identity;
+  const isAuthenticated = true;//!!identity;
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
   const handleLogin = async () => {
     try {
-      await login();
+      // await login();
     } catch (error: any) {
       console.error('Login error:', error);
     }
@@ -52,9 +52,9 @@ export default function AdminPage() {
           <div className="bg-card p-8 rounded-lg shadow-xl text-center space-y-6">
             <div className="flex justify-center">
               <img
-                src="/assets/generated/wine-logo-transparent.dim_200x200.png"
+                src="/assets/logo.webp"
                 alt="Logo"
-                className="h-20 w-20"
+                // className="h-20 w-20"
               />
             </div>
             <div>

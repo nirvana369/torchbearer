@@ -154,12 +154,12 @@ export default function AboutPage() {
                           src={
                             section.mediaUrl.startsWith('http')
                               ? section.mediaUrl
-                              : `/assets/generated/${section.mediaUrl}`
+                              : `/assets/${section.mediaUrl}`
                           }
                           alt={section.title}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            e.currentTarget.src = '/assets/generated/vineyard-aerial.dim_1200x800.jpg';
+                            e.currentTarget.src = '/assets/wine.jpg';
                           }}
                         />
                       </div>

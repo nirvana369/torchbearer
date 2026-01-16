@@ -33,7 +33,7 @@ export default function ContactPage() {
       <Header />
       <main className="pt-20">
         <div className="container mx-auto px-4 py-16">
-          <div className="text-center mb-12 fade-in-section">
+          <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Địa Điểm Liên Hệ
             </h1>
@@ -58,7 +58,7 @@ export default function ContactPage() {
               ))}
             </div>
           ) : contacts && contacts.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 fade-in-section">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {contacts.map((contact, index) => (
                 <Card key={index} className="hover:shadow-lg transition-shadow">
                   <CardHeader>

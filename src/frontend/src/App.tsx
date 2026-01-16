@@ -11,7 +11,7 @@ import CartPage from './pages/CartPage';
 import OrderPage from './pages/OrderPage';
 import MediaPage from './pages/MediaPage';
 import FloatingBubble from './components/FloatingBubble';
-import { InternetIdentityProvider } from "ic-use-internet-identity";
+import { InternetIdentityProvider } from "./hooks/useInternetIdentity";
 import { CartProvider } from './contexts/CartContext';
 
 const queryClient = new QueryClient({

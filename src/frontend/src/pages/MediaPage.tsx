@@ -98,7 +98,7 @@ export default function MediaPage() {
                     {currentMedia.mediaType === 'video' ? (
                       <video
                         key={currentMedia.url}
-                        src={`/assets/generated/${currentMedia.url}`}
+                        src={`/assets/${currentMedia.url}`}
                         controls
                         className="w-full h-full object-contain"
                         autoPlay
@@ -107,7 +107,7 @@ export default function MediaPage() {
                       />
                     ) : (
                       <img
-                        src={`/assets/generated/${currentMedia.url}`}
+                        src={`/assets/${currentMedia.url}`}
                         alt={currentMedia.caption || 'Media item'}
                         className="w-full h-full object-contain transition-opacity duration-700"
                       />
@@ -213,7 +213,7 @@ export default function MediaPage() {
                           </div>
                         ) : (
                           <img
-                            src={`/assets/generated/${item.url}`}
+                            src={`/assets/${item.url}`}
                             alt={item.caption || `Thumbnail ${index + 1}`}
                             className="w-full h-full object-cover"
                           />

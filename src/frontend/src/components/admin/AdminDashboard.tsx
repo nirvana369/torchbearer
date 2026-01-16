@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { useInternetIdentity } from "ic-use-internet-identity";
+import { useInternetIdentity } from "./../../hooks/useInternetIdentity";
 import { useGetCallerUserProfile } from '../../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -44,9 +44,9 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center space-x-4">
               <img
-                src="/assets/generated/wine-logo-transparent.dim_200x200.png"
+                src="/assets/logo.webp"
                 alt="Logo"
-                className="h-10 w-10"
+                // className="h-10 w-10"
               />
               <div>
                 <h1 className="text-xl font-bold text-foreground">Admin CMS</h1>

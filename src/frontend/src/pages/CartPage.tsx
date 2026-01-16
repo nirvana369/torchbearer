@@ -133,7 +133,7 @@ export default function CartPage() {
               {items.map((item) => {
                 const imageUrl = item.product.imageUrl.startsWith('/')
                   ? item.product.imageUrl
-                  : `/assets/generated/${item.product.imageUrl}`;
+                  : `/assets/${item.product.imageUrl}`;
                 const itemTotal = Number(item.product.price) * item.quantity;
 
                 return (
@@ -145,7 +145,7 @@ export default function CartPage() {
                           alt={item.product.name}
                           className="w-24 h-24 object-cover rounded"
                           onError={(e) => {
-                            e.currentTarget.src = '/assets/generated/wine-bottles-premium.dim_800x600.jpg';
+                            e.currentTarget.src = '/assets/wine-bottles-premium.dim_800x600.jpg';
                           }}
                         />
                         <div className="flex-1">

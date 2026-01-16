@@ -168,7 +168,7 @@ export default function ProductPage() {
                 {filteredProducts.map((product, index) => {
                   const imageUrl = product.imageUrl.startsWith('/') 
                     ? product.imageUrl 
-                    : `/assets/generated/${product.imageUrl}`;
+                    : `/assets/${product.imageUrl}`;
                   
                   return (
                     <Card
@@ -181,7 +181,7 @@ export default function ProductPage() {
                           alt={product.name}
                           className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                           onError={(e) => {
-                            e.currentTarget.src = '/assets/generated/wine-bottles-premium.dim_800x600.jpg';
+                            e.currentTarget.src = '/assets/wine-bottles-premium.dim_800x600.jpg';
                           }}
                         />
                       </div>

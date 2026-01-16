@@ -8,13 +8,13 @@ const Team = () => {
     {
       name: 'Hà',
       role: 'Sommelier',
-      imageUrl: '/assets/generated/sommelier-female.dim_400x400.jpg',
+      imageUrl: '/assets/sommelier-female.dim_400x400.jpg',
       bio: 'Chuyên gia thử rượu với kinh nghiệm 15 năm.'
     },
     {
       name: 'Đức',
       role: 'Winemaker',
-      imageUrl: '/assets/generated/winemaker-male.dim_400x400.jpg',
+      imageUrl: '/assets/winemaker-male.dim_400x400.jpg',
       bio: 'Nhà sản xuất rượu vang với đam mê tạo ra những loại rượu đặc sắc.'
     }
   ];
@@ -75,7 +75,7 @@ const Team = () => {
         <div className="mt-16 fade-in-section">
           <div className="relative h-96 rounded-lg overflow-hidden shadow-2xl">
             <img
-              src="/assets/generated/wine-tasting.dim_1024x683.jpg"
+              src="/assets/wine-tasting.dim_1024x683.jpg"
               alt="Wine tasting experience"
               className="w-full h-full object-cover"
             />

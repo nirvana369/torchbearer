@@ -73,41 +73,41 @@ module {
     let defaultHero : ContentSection = {
       title = "Bản Sắc Việt";
       content = "Trải nghiệm hương vị độc đáo của rượu vang bản địa Việt Nam. Hòa quyện giữa truyền thống và hiện đại trong từng giọt rượu.";
-      mediaUrl = "hero-vineyard.dim_1920x1080.jpg";
+      mediaUrl = "wine.jpg";
     };
 
     let defaultAbout : ContentSection = {
       title = "Câu Chuyện Của Chúng Tôi";
       content = "Hành trình khởi nghiệp từ những vườn nho địa phương, kết hợp phương pháp truyền thống với công nghệ hiện đại để tạo nên sản phẩm độc đáo.";
-      mediaUrl = "vineyard-aerial.dim_1200x800.jpg";
+      mediaUrl = "wine.jpg";
     };
 
     let productsMap = Map.empty<Text, Product>();
 
-    let product1 : Product = {
-      name = "Rượu Vang Đỏ Cao Cấp";
-      description = "Rượu vang đỏ cao cấp với hương vị mạnh mẽ và đậm đà, được ủ từ nho Việt Nam chất lượng cao. Thích hợp cho các bữa tiệc sang trọng.";
-      imageUrl = "wine-bottles-premium.dim_800x600.jpg";
-      price = 450000;
-    };
+    // let product1 : Product = {
+    //   name = "Rượu Vang Đỏ Cao Cấp";
+    //   description = "Rượu vang đỏ cao cấp với hương vị mạnh mẽ và đậm đà, được ủ từ nho Việt Nam chất lượng cao. Thích hợp cho các bữa tiệc sang trọng.";
+    //   imageUrl = "wine-bottles-premium.dim_800x600.jpg";
+    //   price = 450000;
+    // };
 
-    let product2 : Product = {
-      name = "Rượu Vang Trắng Tinh Tế";
-      description = "Rượu vang trắng nhẹ nhàng với hương thơm của hoa quả nhiệt đới. Hoàn hảo cho những buổi gặp gỡ thân mật.";
-      imageUrl = "wine-pour.dim_600x800.jpg";
-      price = 380000;
-    };
+    // let product2 : Product = {
+    //   name = "Rượu Vang Trắng Tinh Tế";
+    //   description = "Rượu vang trắng nhẹ nhàng với hương thơm của hoa quả nhiệt đới. Hoàn hảo cho những buổi gặp gỡ thân mật.";
+    //   imageUrl = "wine-pour.dim_600x800.jpg";
+    //   price = 380000;
+    // };
 
-    let product3 : Product = {
-      name = "Rượu Vang Rosé Thanh Lịch";
-      description = "Rượu vang rosé thanh lịch với màu hồng quyến rũ và hương vị cân bằng. Lựa chọn tuyệt vời cho mọi dịp.";
-      imageUrl = "wine-tasting.dim_1024x683.jpg";
-      price = 420000;
-    };
+    // let product3 : Product = {
+    //   name = "Rượu Vang Rosé Thanh Lịch";
+    //   description = "Rượu vang rosé thanh lịch với màu hồng quyến rũ và hương vị cân bằng. Lựa chọn tuyệt vời cho mọi dịp.";
+    //   imageUrl = "wine-tasting.dim_1024x683.jpg";
+    //   price = 420000;
+    // };
 
-    Map.add(productsMap, Text.compare, product1.name, product1);
-    Map.add(productsMap, Text.compare, product2.name, product2);
-    Map.add(productsMap, Text.compare, product3.name, product3);
+    // Map.add(productsMap, Text.compare, product1.name, product1);
+    // Map.add(productsMap, Text.compare, product2.name, product2);
+    // Map.add(productsMap, Text.compare, product3.name, product3);
 
     let defaultContactLocation : ContactLocation = {
       name = "Head Office";
@@ -120,9 +120,9 @@ module {
 
     {
       header = {
-        title = "KHÁM PHÁ HƯƠNG VỊ VIỆT";
+        title = "Torch Bearer Tasmania";
         content = "Trải nghiệm hương vị độc đáo của rượu vang bản địa Việt Nam";
-        mediaUrl = "wine-logo-transparent.dim_200x200.png";
+        mediaUrl = "logo.webp";
       };
       footer = {
         copyright = "© 2024 Rượu Vang Việt. All rights reserved.";
@@ -203,9 +203,9 @@ module {
 
   func getVietnameseHeader() : ContentSection {
     {
-      title = "KHÁM PHÁ HƯƠNG VỊ VIỆT";
+      title = "Torch Bearer Tasmania";
       content = "Trải nghiệm hương vị độc đáo của rượu vang bản địa Việt Nam";
-      mediaUrl = "wine-logo-transparent.dim_200x200.png";
+      mediaUrl = "logo.webp";
     };
   };
 
@@ -221,7 +221,7 @@ module {
     {
       title = "Câu Chuyện Của Chúng Tôi";
       content = "Hành trình khởi nghiệp từ những vườn nho địa phương, kết hợp phương pháp truyền thống với công nghệ hiện đại để tạo nên sản phẩm độc đáo.";
-      mediaUrl = "vineyard-aerial.dim_1200x800.jpg";
+      mediaUrl = "wine.jpg";
     };
   };
 

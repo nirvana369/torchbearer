@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useBackendActor } from "./actor";
-import { useInternetIdentity } from "ic-use-internet-identity";
+import { useInternetIdentity } from "./useInternetIdentity";
 
 export function useActor() {
     const {
@@ -18,7 +18,9 @@ export function useActor() {
     } = useBackendActor();
     const [isFetching, setIsFetching] = useState(false);
 
-    const { identity } = useInternetIdentity();
+    const {
+        identity,
+    } = useInternetIdentity();
 
     // Authenticate when identity is available
     useEffect(() => {

@@ -207,13 +207,13 @@ export default function AboutEditor() {
                             src={
                               section.mediaUrl.startsWith('http')
                                 ? section.mediaUrl
-                                : `/assets/generated/${section.mediaUrl}`
+                                : `/assets/${section.mediaUrl}`
                             }
                             alt="Preview"
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               e.currentTarget.src =
-                                '/assets/generated/vineyard-aerial.dim_1200x800.jpg';
+                                '/assets/wine.jpg';
                             }}
                           />
                         </div>
@@ -245,13 +245,13 @@ export default function AboutEditor() {
                             src={
                               section.mediaUrl.startsWith('http')
                                 ? section.mediaUrl
-                                : `/assets/generated/${section.mediaUrl}`
+                                : `/assets/${section.mediaUrl}`
                             }
                             alt={section.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               e.currentTarget.src =
-                                '/assets/generated/vineyard-aerial.dim_1200x800.jpg';
+                                '/assets/wine.jpg';
                             }}
                           />
                         </div>

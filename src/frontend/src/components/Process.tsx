@@ -43,7 +43,7 @@ const Process = () => {
     <section id="process" className="py-24 bg-background relative overflow-hidden">
       <div className="absolute inset-0 opacity-5">
         <img
-          src="/assets/generated/grape-harvest.dim_800x600.jpg"
+          src="/assets/grape-harvest.dim_800x600.jpg"
           alt="Grape harvest"
           className="w-full h-full object-cover"
         />
@@ -120,7 +120,7 @@ const Process = () => {
               </div>
               <div className="relative h-80 rounded-lg overflow-hidden shadow-lg">
                 <img
-                  src="/assets/generated/wine-cellar.dim_1024x768.jpg"
+                  src="/assets/wine-cellar.dim_1024x768.jpg"
                   alt="Wine cellar"
                   className="w-full h-full object-cover"
                 />

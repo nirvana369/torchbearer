@@ -168,7 +168,7 @@ export default function ProcessEditor() {
                 <Input
                   value={step.mediaUrl}
                   onChange={(e) => handleUpdateStep(index, 'mediaUrl', e.target.value)}
-                  placeholder="/assets/generated/grape-harvest.dim_800x600.jpg"
+                  placeholder="/assets/grape-harvest.dim_800x600.jpg"
                 />
                 {step.mediaUrl && (
                   <img

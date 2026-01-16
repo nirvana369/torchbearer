@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGetAdmins, useAddAdmin, useRemoveAdmin } from '../../hooks/useQueries';
-import { useInternetIdentity } from "ic-use-internet-identity";
+import { useInternetIdentity } from "./../../hooks/useInternetIdentity";
 import { Principal } from '@dfinity/principal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

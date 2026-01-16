@@ -21,6 +21,7 @@
       "packtool": "mops sources"
     }
   },
+  "output_env_file": "./src/frontend/.env",
   "networks": {
     "local": {
       "bind": "127.0.0.1:4943",

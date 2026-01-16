@@ -102,7 +102,7 @@ export default function OrderPage() {
 
   const imageUrl = product.imageUrl.startsWith('/')
     ? product.imageUrl
-    : `/assets/generated/${product.imageUrl}`;
+    : `/assets/${product.imageUrl}`;
   const totalPrice = Number(product.price) * quantity;
 
   return (
@@ -130,7 +130,7 @@ export default function OrderPage() {
                   alt={product.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = '/assets/generated/wine-bottles-premium.dim_800x600.jpg';
+                    e.currentTarget.src = '/assets/wine-bottles-premium.dim_800x600.jpg';
                   }}
                 />
               </div>

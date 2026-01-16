@@ -13,19 +13,19 @@ const Hero = () => {
 
   // Default slideshow images - will be replaced by backend data when available
   const defaultImages = [
-    '/assets/generated/hero-vineyard.dim_1920x1080.jpg',
-    '/assets/generated/vineyard-aerial.dim_1200x800.jpg',
-    '/assets/generated/wine-cellar.dim_1024x768.jpg',
+    '/assets/720.mp4'
   ];
 
   // Get images from backend or use defaults
-  const heroImages = heroData?.mediaUrl 
-    ? [
-        heroData.mediaUrl.startsWith('http') 
-          ? heroData.mediaUrl 
-          : `/assets/generated/${heroData.mediaUrl}`
-      ]
-    : defaultImages;
+  // const heroImages = heroData?.mediaUrl 
+  //   ? [
+  //       heroData.mediaUrl.startsWith('http') 
+  //         ? heroData.mediaUrl 
+  //         : `/assets/${heroData.mediaUrl}`
+  //     ]
+  //   : defaultImages;
+
+    const heroImages = defaultImages;
 
   const slideshowTiming = 5000; // 5 seconds between transitions
 
@@ -77,6 +77,12 @@ const Hero = () => {
     }
   };
 
+  const isVideoFile = (url: string) => {
+    if (!url) return false;
+    const videoExtensions = ['.mp4', '.webm', '.mov', '.ogg'];
+    return videoExtensions.some(ext => url.toLowerCase().endsWith(ext));
+  };
+
   return (
     <section 
       id="hero" 
@@ -87,23 +93,41 @@ const Hero = () => {
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      <div className="absolute inset-0 z-0">
+
+    <div className="absolute inset-0 z-0">
         {isLoading ? (
           <Skeleton className="w-full h-full" />
         ) : (
           <>
-            {/* Slideshow images with crossfade */}
-            {heroImages.map((image, index) => (
-              <img
-                key={index}
-                src={image}
-                alt={`Vineyard landscape ${index + 1}`}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                  index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-                }`}
-                loading={index === 0 ? 'eager' : 'lazy'}
-              />
-            ))}
+            {/* Updated media rendering with video support */}
+            {heroImages.map((mediaUrl, index) => {
+              const isVideo = isVideoFile(mediaUrl);
+              
+              return isVideo ? (
+                <video
+                  key={index}
+                  src={mediaUrl}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                    index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                />
+              ) : (
+                <img
+                  key={index}
+                  src={mediaUrl}
+                  alt={`Vineyard landscape ${index + 1}`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                    index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                />
+              );
+            })}
             <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background/80" />
           </>
         )}

@@ -20,7 +20,7 @@ const Products = () => {
     name: p.name,
     type: 'Sản phẩm',
     description: p.description,
-    image: p.imageUrl.startsWith('/') ? p.imageUrl : `/assets/generated/${p.imageUrl}`,
+    image: p.imageUrl.startsWith('/') ? p.imageUrl : `/assets/${p.imageUrl}`,
     price: p.price,
   }));
 
@@ -79,7 +79,7 @@ const Products = () => {
                       alt={wine.name}
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                       onError={(e) => {
-                        e.currentTarget.src = '/assets/generated/wine-bottles-premium.dim_800x600.jpg';
+                        e.currentTarget.src = '/assets/wine-bottles-premium.dim_800x600.jpg';
                       }}
                     />
                   </div>
