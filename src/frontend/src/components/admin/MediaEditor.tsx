@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGetMediaItems, useAddMediaItem, useUpdateMediaItem, useDeleteMediaItem } from '../../hooks/useQueries';
 import { Plus, Trash2, Save, Image, Video, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
-import type { MediaItem } from '../../backend';
+import type { MediaItem } from '../../../../declarations/backend/backend.did';
 import {
   Dialog,
   DialogContent,

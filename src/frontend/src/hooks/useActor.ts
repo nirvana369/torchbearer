@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useBackendActor } from "./actor";
 import { useInternetIdentity } from "./useInternetIdentity";
 
@@ -16,11 +16,9 @@ export function useActor() {
         reset,           // Function to reset the actor state
         clearError       // Function to clear error state
     } = useBackendActor();
+    
     const [isFetching, setIsFetching] = useState(false);
-
-    const {
-        identity,
-    } = useInternetIdentity();
+    const { identity } = useInternetIdentity();
 
     // Authenticate when identity is available
     useEffect(() => {
@@ -29,17 +27,30 @@ export function useActor() {
         }
     }, [identity, authenticate]);
 
-        // Use the actor (works with anonymous or authenticated)
-    const fetchData = async () => {
-        if (!actor) return;
+    // Function to fetch data - có thể gọi từ bên ngoài
+    const fetchData = useCallback(async () => {
+        if (!actor || isFetching) return null;
+        
         try {
+            setIsFetching(true);
             const data = await actor.ping();
-            if (data == "pong") setIsFetching(true);
             console.log(data);
+            return data;
         } catch (err) {
             console.error("Failed to fetch data:", err);
+            throw err;
+        } finally {
+            setIsFetching(false);
         }
-    };
+    }, [actor, isFetching]);
+
+    // Tùy chọn: tự động fetch khi actor sẵn sàng
+    useEffect(() => {
+        if (actor && !isFetching) {
+            // Chỉ fetch nếu cần
+            // fetchData();
+        }
+    }, [actor, fetchData, isFetching]);
 
   return { actor, isFetching };
 }

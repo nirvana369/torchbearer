@@ -13,6 +13,11 @@
       ],
       "type": "assets",
       "workspace": "frontend"
+    },
+    "assets": {
+      "type": "custom",
+      "candid": "src/candid/assetstorage.did",
+      "wasm": "https://github.com/dfinity/sdk/raw/refs/heads/master/src/distributed/assetstorage.wasm.gz"
     }
   },
   "defaults": {

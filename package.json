@@ -17,6 +17,7 @@
   ],
   "dependencies": {
     "@icp-sdk/auth": "^5.0.0",
+    "@icp-sdk/canisters": "^3.4.0",
     "@icp-sdk/core": "^5.0.0",
     "@tanstack/react-query": "^5.90.17",
     "ic-use-actor": "^0.4.0",
