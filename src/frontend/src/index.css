@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.625rem;
+        /* Torch Bearer Tasmania - Professional burgundy and gold theme - Light mode */
+        --background: 0.98 0.01 30;
+        --foreground: 0.20 0.02 15;
+        --card: 0.99 0.005 40;
+        --card-foreground: 0.20 0.02 15;
+        --popover: 0.99 0.005 40;
+        --popover-foreground: 0.20 0.02 15;
+        --primary: 0.30 0.12 15;
+        --primary-foreground: 0.98 0.01 30;
+        --secondary: 0.75 0.10 50;
+        --secondary-foreground: 0.20 0.02 15;
+        --muted: 0.95 0.01 35;
+        --muted-foreground: 0.50 0.02 20;
+        --accent: 0.65 0.12 45;
+        --accent-foreground: 0.98 0.01 30;
+        --destructive: 0.55 0.22 25;
+        --destructive-foreground: 0.98 0.01 30;
+        --border: 0.88 0.01 30;
+        --input: 0.88 0.01 30;
+        --ring: 0.30 0.12 15;
+        --chart-1: 0.35 0.12 15;
+        --chart-2: 0.70 0.12 50;
+        --chart-3: 0.45 0.10 20;
+        --chart-4: 0.75 0.10 45;
+        --chart-5: 0.60 0.10 25;
+        --sidebar: 0.98 0.01 30;
+        --sidebar-foreground: 0.20 0.02 15;
+        --sidebar-primary: 0.30 0.12 15;
+        --sidebar-primary-foreground: 0.98 0.01 30;
+        --sidebar-accent: 0.75 0.10 50;
+        --sidebar-accent-foreground: 0.20 0.02 15;
+        --sidebar-border: 0.88 0.01 30;
+        --sidebar-ring: 0.30 0.12 15;
+    }
+
+    .dark {
+        /* Torch Bearer Tasmania - Professional burgundy and gold theme - Dark mode */
+        --background: 0.15 0.02 15;
+        --foreground: 0.95 0.01 35;
+        --card: 0.20 0.02 15;
+        --card-foreground: 0.95 0.01 35;
+        --popover: 0.18 0.02 15;
+        --popover-foreground: 0.95 0.01 35;
+        --primary: 0.45 0.12 15;
+        --primary-foreground: 0.15 0.02 15;
+        --secondary: 0.30 0.02 20;
+        --secondary-foreground: 0.95 0.01 35;
+        --muted: 0.25 0.02 20;
+        --muted-foreground: 0.65 0.02 25;
+        --accent: 0.70 0.12 45;
+        --accent-foreground: 0.95 0.01 35;
+        --destructive: 0.60 0.20 25;
+        --destructive-foreground: 0.95 0.01 35;
+        --border: 0.28 0.02 20;
+        --input: 0.28 0.02 20;
+        --ring: 0.45 0.12 15;
+        --chart-1: 0.50 0.12 15;
+        --chart-2: 0.75 0.12 50;
+        --chart-3: 0.55 0.10 20;
+        --chart-4: 0.78 0.10 45;
+        --chart-5: 0.65 0.10 25;
+        --sidebar: 0.18 0.02 15;
+        --sidebar-foreground: 0.95 0.01 35;
+        --sidebar-primary: 0.45 0.12 15;
+        --sidebar-primary-foreground: 0.15 0.02 15;
+        --sidebar-accent: 0.30 0.02 20;
+        --sidebar-accent-foreground: 0.95 0.01 35;
+        --sidebar-border: 0.28 0.02 20;
+        --sidebar-ring: 0.45 0.12 15;
+    }
+
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    }
+}
+
+@layer utilities {
+    /* Scroll animations */
+    .fade-in-section {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+
+    .fade-in-section.animate-in {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Hero animation */
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fade-in 1s ease-out;
+    }
+
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: oklch(var(--background));
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: oklch(var(--primary) / 0.5);
+        border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: oklch(var(--primary));
+    }
+}
+
