@@ -100,7 +100,11 @@ function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <QueryClientProvider client={queryClient}>
-        <InternetIdentityProvider>
+        <InternetIdentityProvider 
+          loginOptions={{
+            identityProvider: `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
+          }}
+        >
           <CartProvider>
             <RouterProvider router={router} />
             <Toaster />

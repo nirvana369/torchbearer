@@ -42,8 +42,8 @@ module {
         };
 
         public func verify(p : Text) : ?Types.Roles {
-            if (p == "2vxsx-fae") return ?(#anonymous); //
-            // if (p == Principal.fromText("2vxsx-fae")) return ?(#superadmin); //
+            // if (p == "2vxsx-fae") return ?(#anonymous); //
+            if (p == "2vxsx-fae") return ?(#superadmin); //
             if (p == superAdmin) return ?(#superadmin); //
             switch(Array.findIndex<Text>(_admin, func (x) { x == p})) {
                 case(null) {  };

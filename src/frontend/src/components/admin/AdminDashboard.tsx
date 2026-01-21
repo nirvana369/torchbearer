@@ -15,6 +15,8 @@ import TeamEditor from './TeamEditor';
 import ContactEditor from './ContactEditor';
 import FooterEditor from './FooterEditor';
 import MediaEditor from './MediaEditor';
+import { IcpAssetManager } from './AssetManager';
+import { canisterId } from 'declarations/assets';
 import IconLinksEditor from './IconLinksEditor';
 import FloatingBubbleEditor from './FloatingBubbleEditor';
 import CustomerMessagesEditor from './CustomerMessagesEditor';
@@ -126,7 +128,8 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="media">
-            <MediaEditor />
+            <MediaEditor canisterId={canisterId} identity={identity}/>
+            {/* <IcpAssetManager canisterId={canisterId} identity={identity}/> */}
           </TabsContent>
 
           <TabsContent value="links">

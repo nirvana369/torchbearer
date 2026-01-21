@@ -11,17 +11,17 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 export default function AdminPage() {
   const navigate = useNavigate();
-  const { identity, login, loginStatus, isInitializing } = useInternetIdentity();
+  const { identity, login, status, isInitializing } = useInternetIdentity();
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
   const saveProfile = useSaveCallerUserProfile();
   const [profileName, setProfileName] = useState('');
 
-  const isAuthenticated = true;//!!identity;
+  const isAuthenticated = !!identity;
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
   const handleLogin = async () => {
     try {
-      // await login();
+      await login();
     } catch (error: any) {
       console.error('Login error:', error);
     }
@@ -69,9 +69,9 @@ export default function AdminPage() {
               onClick={handleLogin}
               size="lg"
               className="w-full"
-              disabled={loginStatus === 'logging-in'}
+              disabled={status === 'logging-in'}
             >
-              {loginStatus === 'logging-in' ? (
+              {status === 'logging-in' ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Đang đăng nhập...

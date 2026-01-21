@@ -179,7 +179,7 @@ shared ({caller}) persistent actor class FileStorage() = this {
     // =========================================================================
     
     /// Stores a file in the storage system
-    public shared ({caller}) func putFile(key : Text, file : Types.File_R) : async Result.Result<(), Text> {
+    public shared ({caller}) func putFile(key : Text, fileData : Types.FileChunk) : async Result.Result<(), Text> {
         switch (Map.get(upcomingChunkUpload, Text.compare, key)) {
             case (null) {
                 return #err "Chunk upload not registered!"
@@ -188,6 +188,11 @@ shared ({caller}) persistent actor class FileStorage() = this {
         };
         
         let p = profiler.push("putFile");
+
+        let file : Types.File_R = {
+            header = Blob.empty();
+            data = to_candid(fileData);
+        };
         
         let size = file.header.size() + file.data.size();
         // Check storage capacity
@@ -202,7 +207,7 @@ shared ({caller}) persistent actor class FileStorage() = this {
     };
     
     /// Retrieves a file from storage
-    public query ({caller}) func getFile(key : Text) : async Result.Result<Types.File_R, Text> {
+    public query ({caller}) func getFileInfo(key : Text) : async Result.Result<Types.FileInfo, Text> {
         let p = profiler.push("getFile");
         
         switch (Map.get(fileStore, Text.compare, key)) {
@@ -211,8 +216,32 @@ shared ({caller}) persistent actor class FileStorage() = this {
                 #err "File not found!" 
             };
             case (?file) {
+                let header : ?Types.FileInfo = from_candid(file.header);
                 profiler.pop(p);
-                #ok(file);
+                switch(header) {
+                    case (?h) #ok (h);
+                    case (null) #err "File can't deserialized";
+                };
+            };
+        };
+    };
+
+    public query ({caller}) func getFileChunk(hash : Text) : async Result.Result<Types.FileChunk, Text> {
+        let p = profiler.push("getFile");
+        
+        switch (Map.get(fileStore, Text.compare, hash)) {
+            case (null) { 
+                profiler.pop(p);
+                #err "File not found!" 
+            };
+            case (?file) {
+                let chunk : ?Types.FileChunk = from_candid(file.data);
+                
+                profiler.pop(p);
+                switch(chunk) {
+                    case (?c) #ok (c);
+                    case (null) #err "File can't deserialized";
+                };
             };
         };
     };

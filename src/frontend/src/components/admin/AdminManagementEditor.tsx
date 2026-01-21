@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useGetAdmins, useAddAdmin, useRemoveAdmin } from '../../hooks/useQueries';
 import { useInternetIdentity } from "./../../hooks/useInternetIdentity";
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

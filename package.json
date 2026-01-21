@@ -16,6 +16,7 @@
     "src/frontend"
   ],
   "dependencies": {
+    "@dfinity/agent": "^3.4.3",
     "quill": "^2.0.2",
     "vite": "^7.3.1"
   }
