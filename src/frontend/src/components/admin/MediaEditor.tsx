@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,10 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGetMediaItems, useAddMediaItem, useUpdateMediaItem, useDeleteMediaItem } from '../../hooks/useQueries';
-import { Plus, Trash2, Save, Image, Video, Edit2, Link, Copy, Info, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, Save, Image, Video, Edit2, Link, Copy, Info, RefreshCw, Upload, X, File, FolderOpen, Check, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import type { MediaItem } from '../../../../declarations/backend/backend.did';
-import FileDropZone from '../FileDropZone';
 
 import {
   Dialog,
@@ -22,6 +21,9 @@ import {
 import { AssetManager } from '@icp-sdk/canisters/assets';
 import { HttpAgent } from '@icp-sdk/core/agent';
 import { Principal } from '@icp-sdk/core/principal';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
 // Types from IcpAssetManager
 interface AssetEncoding {
@@ -68,7 +70,10 @@ interface MediaEditorProps {
   maxChunkSize?: number;
   maxSingleFileSize?: number;
   onDeleteComplete?: (assetId: string) => void;
+  onUploadComplete?: (asset: AssetMetadata) => void;
   itemsPerPage?: number;
+  allowedTypes?: string[];
+  customMaxFileSize?: number;
 }
 
 export default function MediaEditor({
@@ -80,7 +85,10 @@ export default function MediaEditor({
   maxChunkSize = 1900000,
   maxSingleFileSize = 1900000,
   onDeleteComplete,
-  itemsPerPage = 12
+  onUploadComplete,
+  itemsPerPage = 12,
+  allowedTypes = ['image/*', 'video/*', 'application/pdf', 'text/plain'],
+  customMaxFileSize = 10 * 1024 * 1024 // 10MB default
 }: MediaEditorProps) {
   const { data: mediaItems, isLoading: isMediaLoading, refetch: refetchMedia } = useGetMediaItems(0);
   const addMediaItem = useAddMediaItem();
@@ -94,6 +102,22 @@ export default function MediaEditor({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalAssets, setTotalAssets] = useState(0);
   const [showAssets, setShowAssets] = useState(false); // Toggle between media items and assets
+
+  // Upload states (from IcpAssetManager)
+  const [uploading, setUploading] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [batchMode, setBatchMode] = useState(false);
+  const [batchAssets, setBatchAssets] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const [showUploadPanel, setShowUploadPanel] = useState(false);
+  
+  // Dialog upload states
+  const [dialogUploading, setDialogUploading] = useState(false);
+  const [dialogUploadProgress, setDialogUploadProgress] = useState<Record<string, number>>({});
+  const [dialogSelectedFile, setDialogSelectedFile] = useState<File | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dialogFileInputRef = useRef<HTMLInputElement>(null);
 
   // Dialog states
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -162,7 +186,297 @@ export default function MediaEditor({
     initAssetManager();
   }, [canisterId, externalAgent, identity, host, concurrency, maxChunkSize, maxSingleFileSize]);
 
-  // Load assets from AssetManager (from IcpAssetManager)
+  const buildAssetUrl = (key: string): string => {
+    if (process.env.DFX_NETWORK === "ic") {
+      return `https://${typeof canisterId === 'string' ? canisterId : canisterId?.toString()}.icp0.io${key.startsWith('/') ? key : '/' + key}`;
+    }
+    return `http://${typeof canisterId === 'string' ? canisterId : canisterId?.toString()}.localhost:4943${key.startsWith('/') ? key : '/' + key}`;
+  };
+
+  // UPLOAD FUNCTIONS FROM ICPASSETMANAGER
+  const handleSingleUpload = async (file: File, isDialogUpload: boolean = false) => {
+    if (!assetManager) {
+      toast.error("AssetManager not initialized");
+      return;
+    }
+
+    if (file.size > customMaxFileSize) {
+      toast.error(`File size must be less than ${Math.round(customMaxFileSize / 1024 / 1024)}MB`);
+      return;
+    }
+
+    // Validate file type
+    const isTypeAllowed = allowedTypes.some(type => {
+      if (type.endsWith('/*')) {
+        const mainType = type.split('/')[0];
+        return file.type.startsWith(mainType + '/');
+      }
+      return file.type === type;
+    });
+
+    if (!isTypeAllowed && allowedTypes.length > 0) {
+      toast.error(`File type ${file.type} not allowed`);
+      return;
+    }
+
+    if (isDialogUpload) {
+      setDialogUploading(true);
+    } else {
+      setUploading(true);
+    }
+    
+    const progressKey = `${Date.now()}_${file.name}`;
+    
+    if (isDialogUpload) {
+      setDialogUploadProgress(prev => ({ ...prev, [progressKey]: 0 }));
+    } else {
+      setUploadProgress(prev => ({ ...prev, [progressKey]: 0 }));
+    }
+
+    try {
+      // Simulate progress
+      const simulateProgress = () => {
+        if (isDialogUpload) {
+          setDialogUploadProgress(prev => {
+            const current = prev[progressKey] || 0;
+            if (current < 90) {
+              return { ...prev, [progressKey]: current + 10 };
+            }
+            return prev;
+          });
+        } else {
+          setUploadProgress(prev => {
+            const current = prev[progressKey] || 0;
+            if (current < 90) {
+              return { ...prev, [progressKey]: current + 10 };
+            }
+            return prev;
+          });
+        }
+      };
+
+      const progressInterval = setInterval(simulateProgress, 300);
+
+      // Store the file using AssetManager
+      const key = await assetManager.store(file);
+      
+      clearInterval(progressInterval);
+      
+      if (isDialogUpload) {
+        setDialogUploadProgress(prev => ({ ...prev, [progressKey]: 100 }));
+      } else {
+        setUploadProgress(prev => ({ ...prev, [progressKey]: 100 }));
+      }
+
+      // Create metadata for the new asset
+      const now = BigInt(Date.now() * 1000000);
+      const newAsset: AssetMetadata = {
+        id: key,
+        key,
+        name: file.name,
+        url: buildAssetUrl(key),
+        content_type: file.type,
+        size: file.size,
+        created_at: new Date(),
+        modified: new Date(),
+        path: key.includes('/') ? key.substring(0, key.lastIndexOf('/')) : '/'
+      };
+
+      if (!isDialogUpload) {
+        // Update state for main asset list
+        setAssets(prev => [newAsset, ...prev]);
+        setTotalAssets(prev => prev + 1);
+      }
+      
+      onUploadComplete?.(newAsset);
+      toast.success(`${file.name} uploaded successfully!`);
+      
+      if (isDialogUpload) {
+        // Set the uploaded file URL in the dialog form
+        setNewMedia(prev => ({ ...prev, url: key }));
+        // Clear dialog upload progress
+        setTimeout(() => {
+          setDialogUploadProgress({});
+          setDialogSelectedFile(null);
+        }, 1000);
+      } else {
+        // Clear main upload progress
+        setTimeout(() => {
+          setUploadProgress(prev => {
+            const { [progressKey]: _, ...rest } = prev;
+            return rest;
+          });
+        }, 1000);
+      }
+
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast.error(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      if (isDialogUpload) {
+        setDialogUploading(false);
+      } else {
+        setUploading(false);
+      }
+    }
+  };
+
+  // Handle batch upload
+  const handleBatchUpload = async () => {
+    if (!assetManager || batchAssets.length === 0) {
+      toast.error("No files selected or AssetManager not initialized");
+      return;
+    }
+
+    setUploading(true);
+    const batch = assetManager.batch();
+    const uploadedAssets: AssetMetadata[] = [];
+
+    try {
+      for (const file of batchAssets) {
+        if (file.size > customMaxFileSize) {
+          console.warn(`Skipping ${file.name}: File too large`);
+          toast.warning(`Skipping ${file.name}: File too large`);
+          continue;
+        }
+
+        // Validate file type
+        const isTypeAllowed = allowedTypes.some(type => {
+          if (type.endsWith('/*')) {
+            const mainType = type.split('/')[0];
+            return file.type.startsWith(mainType + '/');
+          }
+          return file.type === type;
+        });
+
+        if (!isTypeAllowed && allowedTypes.length > 0) {
+          toast.warning(`Skipping ${file.name}: File type not allowed`);
+          continue;
+        }
+
+        const progressKey = `${Date.now()}_${file.name}`;
+        setUploadProgress(prev => ({ ...prev, [progressKey]: 50 }));
+
+        try {
+          // Store in batch
+          const key = await batch.store(file);
+          
+          const newAsset: AssetMetadata = {
+            id: key,
+            key,
+            name: file.name,
+            url: buildAssetUrl(key),
+            content_type: file.type,
+            size: file.size,
+            created_at: new Date(),
+            modified: new Date(),
+            path: key.includes('/') ? key.substring(0, key.lastIndexOf('/')) : '/'
+          };
+
+          uploadedAssets.push(newAsset);
+          setUploadProgress(prev => ({ ...prev, [progressKey]: 100 }));
+        } catch (error) {
+          console.error(`Failed to add ${file.name} to batch:`, error);
+          toast.error(`Failed to add ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+
+      // Commit the batch
+      if (uploadedAssets.length > 0) {
+        await batch.commit();
+
+        // Update state
+        setAssets(prev => [...uploadedAssets, ...prev]);
+        setTotalAssets(prev => prev + uploadedAssets.length);
+        
+        // Notify completion
+        uploadedAssets.forEach(asset => {
+          onUploadComplete?.(asset);
+        });
+
+        toast.success(`${uploadedAssets.length} file(s) uploaded successfully!`);
+      }
+
+      // Clear batch
+      setBatchAssets([]);
+      setBatchMode(false);
+
+      // Clear progress after delay
+      setTimeout(() => {
+        setUploadProgress({});
+      }, 1000);
+
+    } catch (error) {
+      console.error('Batch upload failed:', error);
+      toast.error(`Batch upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Handle file selection for upload
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, isDialog: boolean = false) => {
+    const files = Array.from(event.target.files || []);
+    
+    if (files.length === 0) return;
+
+    // Filter by allowed types
+    const filteredFiles = files.filter(file => {
+      if (allowedTypes.length === 0) return true;
+      
+      return allowedTypes.some(type => {
+        if (type.endsWith('/*')) {
+          const mainType = type.split('/')[0];
+          return file.type.startsWith(mainType + '/');
+        }
+        return file.type === type;
+      });
+    });
+
+    if (filteredFiles.length === 0) {
+      toast.error('No files of allowed types selected');
+      return;
+    }
+
+    if (isDialog) {
+      // For dialog, handle single file upload
+      const file = filteredFiles[0];
+      setDialogSelectedFile(file);
+      // Auto-upload the file
+      handleSingleUpload(file, true);
+    } else {
+      if (batchMode) {
+        setBatchAssets(prev => [...prev, ...filteredFiles]);
+        toast.info(`${filteredFiles.length} file(s) added to batch`);
+      } else if (filteredFiles.length === 1) {
+        handleSingleUpload(filteredFiles[0]);
+      } else {
+        // Multiple files without batch mode - enable batch mode
+        setBatchMode(true);
+        setBatchAssets(filteredFiles);
+        toast.info(`${filteredFiles.length} file(s) added to batch mode`);
+      }
+    }
+
+    // Reset file input
+    if (isDialog && dialogFileInputRef.current) {
+      dialogFileInputRef.current.value = '';
+    } else if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Remove file from batch
+  const removeFileFromBatch = (index: number) => {
+    setBatchAssets(prev => {
+      const newFiles = [...prev];
+      const removedFile = newFiles.splice(index, 1)[0];
+      toast.info(`${removedFile.name} removed from batch`);
+      return newFiles;
+    });
+  };
+
+  // Load assets from AssetManager
   const loadAssets = useCallback(async (page: number = 1) => {
     if (!assetManager) return;
 
@@ -180,6 +494,7 @@ export default function MediaEditor({
             
             if (typeof entry === 'string') {
               const asset = await assetManager.get(entry);
+              console.log('Fetched asset for entry:', asset);
               canisterEntry = {
                 key: entry,
                 content_type: asset.contentType,
@@ -206,7 +521,7 @@ export default function MediaEditor({
               id: canisterEntry.key,
               key: canisterEntry.key,
               name: canisterEntry.key.split('/').pop() || canisterEntry.key,
-              url: `https://${typeof canisterId === 'string' ? canisterId : canisterId.toString()}.icp0.io/${canisterEntry.key}`,
+              url: buildAssetUrl(canisterEntry.key),
               content_type: canisterEntry.content_type,
               size: Number(primaryEncoding?.length || 0),
               created_at: new Date(Number((primaryEncoding?.modified || BigInt(0)) / BigInt(1000000))),
@@ -228,7 +543,7 @@ export default function MediaEditor({
               id: key,
               key,
               name: key.split('/').pop() || key,
-              url: `https://${typeof canisterId === 'string' ? canisterId : canisterId.toString()}.icp0.io/${key}`,
+              url: buildAssetUrl(key),
               content_type: 'application/octet-stream',
               size: 0,
               created_at: new Date(),
@@ -382,6 +697,7 @@ export default function MediaEditor({
 
   const totalPages = Math.ceil(totalAssets / itemsPerPage);
   const isLoading = isMediaLoading || loading;
+  const selectedCount = batchAssets.length;
 
   return (
     <>
@@ -417,8 +733,160 @@ export default function MediaEditor({
         </CardHeader>
         
         {canisterId && showAssets ? (
-          <CardContent className="space-y-4">
-            {/* Asset Manager Section (from IcpAssetManager) */}
+          <CardContent className="space-y-6">
+            {/* Upload Section */}
+            <div className="upload-section border rounded-lg p-4 bg-muted/20">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold">Upload Files</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Upload files to the asset canister
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowUploadPanel(!showUploadPanel)}
+                >
+                  {showUploadPanel ? 'Hide Upload' : 'Show Upload'}
+                </Button>
+              </div>
+
+              {showUploadPanel && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <div className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-muted/10 transition-colors cursor-pointer"
+                        onClick={() => fileInputRef.current?.click()}>
+                        <div className="mx-auto w-12 h-12 flex items-center justify-center rounded-full bg-primary/10 mb-4">
+                          <Upload className="h-6 w-6 text-primary" />
+                        </div>
+                        <p className="font-medium mb-1">Drag & drop files here, or click to select</p>
+                        <p className="text-sm text-muted-foreground">
+                          Max file size: {Math.round(customMaxFileSize / 1024 / 1024)}MB
+                          {allowedTypes.length > 0 && (
+                            <span> | Allowed types: {allowedTypes.join(', ')}</span>
+                          )}
+                        </p>
+                      </div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        onChange={(e) => handleFileSelect(e, false)}
+                        accept={allowedTypes.join(',')}
+                        multiple={batchMode}
+                        disabled={uploading || !assetManager || loading}
+                        className="hidden"
+                      />
+                    </div>
+                    
+                    {batchMode && (
+                      <div className="w-48 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Batch Mode</span>
+                          <Badge variant="secondary">{selectedCount} files</Badge>
+                        </div>
+                        {selectedCount > 0 && (
+                          <Button
+                            onClick={handleBatchUpload}
+                            disabled={uploading || selectedCount === 0}
+                            className="w-full"
+                          >
+                            {uploading ? 'Uploading...' : `Upload ${selectedCount} File(s)`}
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setBatchMode(false);
+                            setBatchAssets([]);
+                          }}
+                          className="w-full"
+                        >
+                          Cancel Batch
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {!batchMode && selectedCount === 0 && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => setBatchMode(true)}
+                      className="w-full"
+                      disabled={!assetManager || loading}
+                    >
+                      <FolderOpen className="h-4 w-4 mr-2" />
+                      Enable Batch Mode for multiple files
+                    </Button>
+                  )}
+
+                  {/* Batch files list */}
+                  {batchAssets.length > 0 && (
+                    <div className="border rounded-lg p-4">
+                      <h4 className="font-medium mb-2">Selected Files ({selectedCount})</h4>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {batchAssets.map((file, index) => (
+                          <div key={index} className="flex items-center justify-between p-2 rounded bg-muted/30">
+                            <div className="flex items-center gap-2">
+                              <File className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-sm truncate">{file.name}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {formatFileSize(file.size)}
+                              </Badge>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFileFromBatch(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Upload Progress */}
+                  {Object.keys(uploadProgress).length > 0 && (
+                    <div className="border rounded-lg p-4">
+                      <h4 className="font-medium mb-3">Upload Progress</h4>
+                      <div className="space-y-3">
+                        {Object.entries(uploadProgress).map(([key, progress]) => {
+                          const fileName = key.split('_').slice(1).join('_');
+                          return (
+                            <div key={key} className="space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm truncate">{fileName}</span>
+                                <span className="text-sm font-medium">{progress}%</span>
+                              </div>
+                              <Progress value={progress} className="h-2" />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {!assetManager && (
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
+                      <AlertCircle className="h-5 w-5 text-yellow-600" />
+                      <span className="text-sm text-yellow-700">AssetManager not initialized. Uploads disabled.</span>
+                    </div>
+                  )}
+                  {loading && (
+                    <div className="text-center py-2 text-muted-foreground">
+                      Initializing AssetManager...
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Asset Manager Section */}
             <div className="asset-manager-section">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -522,7 +990,7 @@ export default function MediaEditor({
                           </div>
                         </div>
                         
-                        {/* Asset Actions (from IcpAssetManager) */}
+                        {/* Asset Actions */}
                         <div className="flex items-center justify-between pt-2 border-t">
                           <div className="flex gap-1">
                             <Button
@@ -565,7 +1033,7 @@ export default function MediaEditor({
                           </Button>
                         </div>
                         
-                        {/* Asset URL (from IcpAssetManager) */}
+                        {/* Asset URL */}
                         <div className="pt-2">
                           <Input
                             type="text"
@@ -584,7 +1052,7 @@ export default function MediaEditor({
                 <div className="text-center py-8 text-muted-foreground">
                   <div className="text-4xl mb-2">📁</div>
                   <h3 className="text-lg font-medium mb-1">No assets yet</h3>
-                  <p>Upload your first file through the FileDropZone!</p>
+                  <p>Upload your first file using the upload panel above!</p>
                 </div>
               )}
             </div>
@@ -669,7 +1137,7 @@ export default function MediaEditor({
 
       {/* Add Media Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add New Media</DialogTitle>
             <DialogDescription>
@@ -696,7 +1164,20 @@ export default function MediaEditor({
             </div>
 
             <div className="space-y-2">
-              <Label>URL *</Label>
+              <div className="flex items-center justify-between">
+                <Label>URL *</Label>
+                {canisterId && (
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => dialogFileInputRef.current?.click()}
+                    disabled={!assetManager || dialogUploading}
+                    className="h-auto p-0"
+                  >
+                    Upload file instead
+                  </Button>
+                )}
+              </div>
               <Input
                 value={newMedia.url}
                 onChange={(e) =>
@@ -704,7 +1185,62 @@ export default function MediaEditor({
                 }
                 placeholder="wine-bottles-premium.dim_800x600.jpg"
               />
+              <input
+                ref={dialogFileInputRef}
+                type="file"
+                onChange={(e) => handleFileSelect(e, true)}
+                accept={allowedTypes.join(',')}
+                disabled={!assetManager || dialogUploading}
+                className="hidden"
+              />
             </div>
+
+            {canisterId && dialogSelectedFile && (
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <File className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">{dialogSelectedFile.name}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {formatFileSize(dialogSelectedFile.size)}
+                    </Badge>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDialogSelectedFile(null)}
+                    disabled={dialogUploading}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                {/* Dialog Upload Progress */}
+                {Object.keys(dialogUploadProgress).length > 0 && (
+                  <div className="space-y-2">
+                    {Object.entries(dialogUploadProgress).map(([key, progress]) => {
+                      const fileName = key.split('_').slice(1).join('_');
+                      return (
+                        <div key={key} className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm">Uploading...</span>
+                            <span className="text-sm font-medium">{progress}%</span>
+                          </div>
+                          <Progress value={progress} className="h-2" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                
+                {!assetManager && (
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-yellow-50 border border-yellow-200 mt-2">
+                    <AlertCircle className="h-4 w-4 text-yellow-600" />
+                    <span className="text-xs text-yellow-700">AssetManager not initialized</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label>Title</Label>
@@ -715,20 +1251,6 @@ export default function MediaEditor({
                 }
                 placeholder="Enter title..."
               />
-            </div>
-            
-
-            <div className="space-y-2">
-              <Label>Upload</Label>
-              {canisterId && (
-                <FileDropZone 
-                  canisterId={canisterId}
-                  onUploadComplete={(asset) => {
-                    toast.success(`${asset.name} uploaded successfully!`);
-                    setNewMedia(prev => ({ ...prev, url: asset.key }));
-                  }}
-                />
-              )}
             </div>
 
             <div className="space-y-2">
@@ -746,13 +1268,17 @@ export default function MediaEditor({
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsAddDialogOpen(false)}
+              onClick={() => {
+                setIsAddDialogOpen(false);
+                setDialogSelectedFile(null);
+                setDialogUploadProgress({});
+              }}
             >
               Cancel
             </Button>
             <Button
               onClick={handleAddMedia}
-              disabled={addMediaItem.isPending}
+              disabled={addMediaItem.isPending || dialogUploading}
             >
               {addMediaItem.isPending ? 'Adding...' : 'Add'}
             </Button>
