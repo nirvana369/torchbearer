@@ -3,113 +3,26 @@ import Map "mo:core/Map";
 import Text "mo:core/Text";
 import Iter "mo:core/Iter";
 import Runtime "mo:core/Runtime";
+import T "object/types";
 
 module {
-  type IconLink = {
-    icon : Text;
-    link : Text;
-  };
 
-  type ContentSection = {
-    title : Text;
-    content : Text;
-    mediaUrl : Text;
-  };
-
-  type TeamMember = {
-    name : Text;
-    role : Text;
-    imageUrl : Text;
-    bio : Text;
-  };
-
-  type FooterData = {
-    copyright : Text;
-    links : [Text];
-    socialMedia : [Text];
-  };
-
-  public type MediaContent = {
-    url : Text;
-    mediaType : Text;
-  };
-
-  type Product = {
-    name : Text;
-    description : Text;
-    imageUrl : Text;
-    price : Nat;
-  };
-
-  type ProcessStep = {
-    stepTitle : Text;
-    description : Text;
-    mediaUrl : Text;
-  };
-
-  type ContactLocation = {
-    name : Text;
-    address : Text;
-    phone : Text;
-    email : Text;
-    mapUrl : Text;
-    isHeadOffice : Bool;
-  };
-
-  public type AdminCMSData = {
-    header : ContentSection;
-    footer : FooterData;
-    iconLinks : [IconLink];
-    heroSection : ContentSection;
-    aboutSection : ContentSection;
-    products : Map.Map<Text, Product>;
-    processSteps : [ProcessStep];
-    teamMembers : [TeamMember];
-    contacts : [ContactLocation];
-    media : [MediaContent];
-  };
-
-  public func init() : AdminCMSData {
-    let defaultHero : ContentSection = {
+  public func init(productsMap : Map.Map<Nat, T.Product>) : T.AdminCMSData {
+    let defaultHero : T.ContentSection = {
       title = "Bản Sắc Việt";
       content = "Trải nghiệm hương vị độc đáo của rượu vang bản địa Việt Nam. Hòa quyện giữa truyền thống và hiện đại trong từng giọt rượu.";
       mediaUrl = "wine.jpg";
     };
 
-    let defaultAbout : ContentSection = {
+    let defaultAbout : T.ContentSection = {
       title = "Câu Chuyện Của Chúng Tôi";
       content = "Hành trình khởi nghiệp từ những vườn nho địa phương, kết hợp phương pháp truyền thống với công nghệ hiện đại để tạo nên sản phẩm độc đáo.";
       mediaUrl = "wine.jpg";
     };
 
-    let productsMap = Map.empty<Text, Product>();
 
-    // let product1 : Product = {
-    //   name = "Rượu Vang Đỏ Cao Cấp";
-    //   description = "Rượu vang đỏ cao cấp với hương vị mạnh mẽ và đậm đà, được ủ từ nho Việt Nam chất lượng cao. Thích hợp cho các bữa tiệc sang trọng.";
-    //   imageUrl = "wine-bottles-premium.dim_800x600.jpg";
-    //   price = 450000;
-    // };
-
-    // let product2 : Product = {
-    //   name = "Rượu Vang Trắng Tinh Tế";
-    //   description = "Rượu vang trắng nhẹ nhàng với hương thơm của hoa quả nhiệt đới. Hoàn hảo cho những buổi gặp gỡ thân mật.";
-    //   imageUrl = "wine-pour.dim_600x800.jpg";
-    //   price = 380000;
-    // };
-
-    // let product3 : Product = {
-    //   name = "Rượu Vang Rosé Thanh Lịch";
-    //   description = "Rượu vang rosé thanh lịch với màu hồng quyến rũ và hương vị cân bằng. Lựa chọn tuyệt vời cho mọi dịp.";
-    //   imageUrl = "wine-tasting.dim_1024x683.jpg";
-    //   price = 420000;
-    // };
-
-    // Map.add(productsMap, Text.compare, product1.name, product1);
-    // Map.add(productsMap, Text.compare, product2.name, product2);
-    // Map.add(productsMap, Text.compare, product3.name, product3);
-
-    let defaultContactLocation : ContactLocation = {
+    let defaultContactLocation : T.ContactLocation = {
+      id = 0;
       name = "Head Office";
       address = "123 Phố Rượu, Quận 1, Thành phố Hồ Chí Minh";
       phone = "+84 1230000000";
@@ -133,8 +46,8 @@ module {
         ];
       };
       iconLinks = [
-        { icon = "facebook"; link = "https://facebook.com/ruouvangviet" },
-        { icon = "instagram"; link = "https://instagram.com/ruouvangviet" },
+        { id = 0; icon = "facebook"; link = "https://facebook.com/ruouvangviet" },
+        { id = 1; icon = "instagram"; link = "https://instagram.com/ruouvangviet" },
       ];
       heroSection = defaultHero;
       aboutSection = defaultAbout;
@@ -161,47 +74,47 @@ module {
   };
 
   // Public update functions for each section
-  public func updateHeroSectionInternal(_ : ContentSection) : () {
+  public func updateHeroSectionInternal(_ : T.ContentSection) : () {
     Runtime.trap("Internal functions should not be called directly");
   };
 
-  public func updateAboutSectionInternal(_ : ContentSection) : () {
+  public func updateAboutSectionInternal(_ : T.ContentSection) : () {
     Runtime.trap("Internal functions should not be called directly");
   };
 
-  public func updateProcessStepsInternal(_ : [ProcessStep]) : () {
+  // public func updateProcessStepsInternal(_ : [T.ProcessStep]) : () {
+  //   Runtime.trap("Internal functions should not be called directly");
+  // };
+
+  public func updateTeamMembersInternal(_ : [T.TeamMember]) : () {
     Runtime.trap("Internal functions should not be called directly");
   };
 
-  public func updateTeamMembersInternal(_ : [TeamMember]) : () {
+  public func updateFooterInternal(_ : T.FooterData) : () {
     Runtime.trap("Internal functions should not be called directly");
   };
 
-  public func updateFooterInternal(_ : FooterData) : () {
+  public func updateHeaderInternal(_ : T.ContentSection) : () {
     Runtime.trap("Internal functions should not be called directly");
   };
 
-  public func updateHeaderInternal(_ : ContentSection) : () {
+  public func updateIconLinksInternal(_ : [T.IconLink]) : () {
     Runtime.trap("Internal functions should not be called directly");
   };
 
-  public func updateIconLinksInternal(_ : [IconLink]) : () {
+  public func addProductInternal(_ : T.Product) : () {
     Runtime.trap("Internal functions should not be called directly");
   };
 
-  public func addProductInternal(_ : Product) : () {
+  public func updateMediaInternal(_ : [T.MediaContent]) : () {
     Runtime.trap("Internal functions should not be called directly");
   };
 
-  public func updateMediaInternal(_ : [MediaContent]) : () {
-    Runtime.trap("Internal functions should not be called directly");
-  };
+  // public func addProcessStepInternal(_ : T.ProcessStep) : () {
+  //   Runtime.trap("Internal functions should not be called directly");
+  // };
 
-  public func addProcessStepInternal(_ : ProcessStep) : () {
-    Runtime.trap("Internal functions should not be called directly");
-  };
-
-  func getVietnameseHeader() : ContentSection {
+  func getVietnameseHeader() : T.ContentSection {
     {
       title = "Torch Bearer Tasmania";
       content = "Trải nghiệm hương vị độc đáo của rượu vang bản địa Việt Nam";
@@ -209,7 +122,7 @@ module {
     };
   };
 
-  func getVietnameseHeroSection() : ContentSection {
+  func getVietnameseHeroSection() : T.ContentSection {
     {
       title = "Bản Sắc Việt";
       content = "Trải nghiệm hương vị độc đáo của rượu vang bản địa Việt Nam. Hòa quyện giữa truyền thống và hiện đại trong từng giọt rượu.";
@@ -217,7 +130,7 @@ module {
     };
   };
 
-  func getVietnameseAboutSection() : ContentSection {
+  func getVietnameseAboutSection() : T.ContentSection {
     {
       title = "Câu Chuyện Của Chúng Tôi";
       content = "Hành trình khởi nghiệp từ những vườn nho địa phương, kết hợp phương pháp truyền thống với công nghệ hiện đại để tạo nên sản phẩm độc đáo.";
@@ -225,58 +138,41 @@ module {
     };
   };
 
-  func getVietnameseProducts() : [Product] {
-    [
-      {
-        name = "Rượu Vang Đỏ Cao Cấp";
-        description = "Rượu vang đỏ cao cấp với hương vị mạnh mẽ và đậm đà, được ủ từ nho Việt Nam chất lượng cao. Thích hợp cho các bữa tiệc sang trọng.";
-        imageUrl = "wine-bottles-premium.dim_800x600.jpg";
-        price = 450000;
-      },
-      {
-        name = "Rượu Vang Trắng Tinh Tế";
-        description = "Rượu vang trắng nhẹ nhàng với hương thơm của hoa quả nhiệt đới. Hoàn hảo cho những buổi gặp gỡ thân mật.";
-        imageUrl = "wine-pour.dim_600x800.jpg";
-        price = 380000;
-      },
-      {
-        name = "Rượu Vang Rosé Thanh Lịch";
-        description = "Rượu vang rosé thanh lịch với màu hồng quyến rũ và hương vị cân bằng. Lựa chọn tuyệt vời cho mọi dịp.";
-        imageUrl = "wine-tasting.dim_1024x683.jpg";
-        price = 420000;
-      },
-    ];
+  func getVietnameseProducts() : [T.Product] {
+    [];
   };
 
-  func getVietnameseProcessSteps() : [ProcessStep] {
-    [
-      {
-        stepTitle = "Công Đoạn Thu Hoạch";
-        description = "Quá trình thu hoạch nho thủ công giúp bảo toàn chất lượng vùng thổ nhưỡng.";
-        mediaUrl = "grape-harvest.dim_800x600.jpg";
-      },
-      {
-        stepTitle = "Ủ Rượu";
-        description = "Ủ rượu theo quy trình kiểm soát nghiêm ngặt đảm bảo đạt chất lượng tốt nhất.";
-        mediaUrl = "wine-cellar.dim_1024x768.jpg";
-      },
-      {
-        stepTitle = "Thử Rượu";
-        description = "Chuyên gia thử rượu kiểm tra chất lượng và hương vị.";
-        mediaUrl = "wine-tasting.dim_1200x800.jpg";
-      },
-    ];
-  };
+  // func getVietnameseProcessSteps() : [T.ProcessStep] {
+  //   [
+  //     {
+  //       stepTitle = "Công Đoạn Thu Hoạch";
+  //       description = "Quá trình thu hoạch nho thủ công giúp bảo toàn chất lượng vùng thổ nhưỡng.";
+  //       mediaUrl = "grape-harvest.dim_800x600.jpg";
+  //     },
+  //     {
+  //       stepTitle = "Ủ Rượu";
+  //       description = "Ủ rượu theo quy trình kiểm soát nghiêm ngặt đảm bảo đạt chất lượng tốt nhất.";
+  //       mediaUrl = "wine-cellar.dim_1024x768.jpg";
+  //     },
+  //     {
+  //       stepTitle = "Thử Rượu";
+  //       description = "Chuyên gia thử rượu kiểm tra chất lượng và hương vị.";
+  //       mediaUrl = "wine-tasting.dim_1200x800.jpg";
+  //     },
+  //   ];
+  // };
 
-  func getVietnameseTeamMembers() : [TeamMember] {
+  func getVietnameseTeamMembers() : [T.TeamMember] {
     [
       {
+        id = 0;
         name = "Hà";
         role = "Sommelier";
         imageUrl = "sommelier-female.dim_400x400.jpg";
         bio = "Chuyên gia thử rượu với kinh nghiệm 15 năm.";
       },
       {
+        id = 1;
         name = "Đức";
         role = "Winemaker";
         imageUrl = "winemaker-male.dim_400x400.jpg";
@@ -285,7 +181,7 @@ module {
     ];
   };
 
-  func getVietnameseFooter() : FooterData {
+  func getVietnameseFooter() : T.FooterData {
     {
       copyright = "© 2024 Rượu Vang Việt. All rights reserved.";
       links = ["/about", "/products", "/process", "/team", "/contact"];
@@ -296,37 +192,38 @@ module {
     };
   };
 
-  public func getProductByName(name : Text) : ?Product {
-    let products = Map.empty<Text, Product>();
+  public func getProductByName(name : Text) : ?T.Product {
+    let products = Map.empty<Text, T.Product>();
     Map.get(products, Text.compare, name);
   };
 
-  public func getHeader() : ContentSection {
+  public func getHeader() : T.ContentSection {
     getVietnameseHeader();
   };
 
-  public func getHeroSection() : ContentSection {
+  public func getHeroSection() : T.ContentSection {
     getVietnameseHeroSection();
   };
 
-  public func getAboutSection() : ContentSection {
+  public func getAboutSection() : T.ContentSection {
     getVietnameseAboutSection();
   };
 
-  public func getProducts() : [Product] {
+  public func getProducts() : [T.Product] {
     getVietnameseProducts();
   };
 
-  public func getProcessSteps() : [ProcessStep] {
-    getVietnameseProcessSteps();
-  };
+  // public func getProcessSteps() : [T.ProcessStep] {
+  //   getVietnameseProcessSteps();
+  // };
 
-  public func getTeamMembers() : [TeamMember] {
+  public func getTeamMembers() : [T.TeamMember] {
     getVietnameseTeamMembers();
   };
 
-  public func getContacts() : [ContactLocation] {
-    let defaultContact : ContactLocation = {
+  public func getContacts() : [T.ContactLocation] {
+    let defaultContact : T.ContactLocation = {
+      id = 0;
       name = "Head Office";
       address = "123 Phố Rượu, Quận 1, Thành phố Hồ Chí Minh";
       phone = "+84 1230000000";
@@ -337,18 +234,18 @@ module {
     [defaultContact];
   };
 
-  public func getFooter() : FooterData {
+  public func getFooter() : T.FooterData {
     getVietnameseFooter();
   };
 
-  public func getMedia() : [MediaContent] {
+  public func getMedia() : [T.MediaContent] {
     [];
   };
 
-  public func getIconLinks() : [IconLink] {
+  public func getIconLinks() : [T.IconLink] {
     [
-      { icon = "facebook"; link = "https://facebook.com/ruouvangviet" },
-      { icon = "instagram"; link = "https://instagram.com/ruouvangviet" },
+      { id = 0; icon = "facebook"; link = "https://facebook.com/ruouvangviet" },
+      { id = 1; icon = "instagram"; link = "https://instagram.com/ruouvangviet" },
     ];
   };
 };

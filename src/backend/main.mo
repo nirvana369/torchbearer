@@ -8,171 +8,64 @@ import AdminCMS "admin-cms";
 import AccessControl "authorization/access-control";
 import Array "mo:core/Array";
 import Iter "mo:core/Iter";
+import T "object/types";
+import { ObjectCRUD } "generic";
+import AdminCms "admin-cms";
 
 // import Migration "migration";
 
 // (with migration = Migration.run)
 persistent actor {
-  type IconLink = {
-    icon : Text;
-    link : Text;
-  };
+  
+  var nextMessageId = 0;
+  var nextMediaId = 0;
+  var nextOrderId = 0;
+  var nextProductId = 0;
+  var nextCategoryId = 0;
+  var nextContactId = 0;
+  var nextUserId = 0;
+  var nextTeamMemberId = 0;
+  var nextIconLinkId = 0;
 
-  public type MediaItem = {
-    id : Nat;
-    url : Text;
-    caption : Text;
-    description : Text;
-    uploadTimestamp : Int;
-    mediaType : Text;
-  };
+  var showProductPrices = true;
+  
+  let userProfiles = Map.empty<Principal, T.UserProfile>();
+  let categories = Map.empty<Nat, T.Category>();
+  let products = Map.empty<Nat, T.Product>();
+  let orders = Map.empty<Nat, T.Order>();
+  let customerMessages = Map.empty<Nat, T.CustomerMessage>();
+  let mediaItems = Map.empty<Nat, T.MediaItem>();
+  let contentSections = Map.empty<Text, T.ContentSection>();
+  let iconLinks = Map.empty<Nat, T.IconLink>();
 
-  public type Category = {
-    id : Text;
-    name : Text;
-    description : Text;
-  };
+  transient let userManager = ObjectCRUD<Principal, T.UserProfile>(userProfiles, Principal.compare);
+  transient let productManager = ObjectCRUD<Nat, T.Product>(products, Nat.compare);
+  transient let categoryManager = ObjectCRUD<Nat, T.Category>(categories, Nat.compare);
+  transient let mediaManager = ObjectCRUD<Nat, T.MediaItem>(mediaItems, Nat.compare);
+  transient let orderManager = ObjectCRUD<Nat, T.Order>(orders, Nat.compare);
+  transient let customerMessageManager = ObjectCRUD<Nat, T.CustomerMessage>(customerMessages, Nat.compare);
+  transient let contactManager = ObjectCRUD<Nat, T.ContactLocation>(Map.empty<Nat, T.ContactLocation>(), Nat.compare);
+  transient let teamMemberManager = ObjectCRUD<Nat, T.TeamMember>(Map.empty<Nat, T.TeamMember>(), Nat.compare);
+  transient let contentSectionManager = ObjectCRUD<Text, T.ContentSection>(contentSections, Text.compare);
+  transient let iconLinkManager = ObjectCRUD<Nat, T.IconLink>(iconLinks, Nat.compare);
 
-  public type Product = {
-    name : Text;
-    description : Text;
-    imageUrl : Text;
-    price : Nat;
-    categories : [Text];
-  };
-
-  public type CartItem = {
-    product : Product;
-    quantity : Nat;
-  };
-
-  public type OrderItem = {
-    product : Product;
-    quantity : Nat;
-    totalPrice : Nat;
-  };
-
-  public type Order = {
-    id : Nat;
-    customerName : Text;
-    customerEmail : Text;
-    customerPhone : Text;
-    items : [OrderItem];
-    totalAmount : Nat;
-    timestamp : Int;
-    status : OrderStatus;
-  };
-
-  public type OrderStatus = {
-    #pending;
-    #completed;
-    #cancelled;
-  };
-
-  public type ContactLocation = {
-    name : Text;
-    address : Text;
-    phone : Text;
-    email : Text;
-    mapUrl : Text;
-    isHeadOffice : Bool;
-  };
-
-  type UserProfile = {
-    name : Text;
-    email : Text;
-    role : Text;
-  };
-
-  public type FloatingBubbleConfig = {
-    backgroundColor : Text;
-    icon : Text;
-    hotlineNumberOverride : ?Text;
-    isEnabled : Bool;
-  };
-
-  public type ProcessStep = {
-    stepTitle : Text;
-    description : Text;
-    mediaUrl : Text;
-  };
-
-  public type TeamMember = {
-    name : Text;
-    role : Text;
-    imageUrl : Text;
-    bio : Text;
-  };
-
-  public type CustomerMessage = {
-    id : Nat;
-    name : Text;
-    email : Text;
-    phone : Text;
-    message : Text;
-    timestamp : Int;
-  };
-
-  public type AboutMediaSection = {
-    title : Text;
-    description : Text;
-    mediaUrl : Text;
-  };
-
-  public type AboutSection = {
-    introductoryHeading : Text;
-    mainDescription : Text;
-    mediaSections : [AboutMediaSection];
-    processSteps : [ProcessStep];
-    teamMembers : [TeamMember];
-  };
-
-  type ContentSection = {
-    title : Text;
-    content : Text;
-    mediaUrl : Text;
-  };
-
-  type FooterData = {
-    copyright : Text;
-    links : [Text];
-    socialMedia : [Text];
-  };
-
-  type SerializableAdminCMSData = {
-    header : ContentSection;
-    footer : FooterData;
-    iconLinks : [IconLink];
-    heroSection : ContentSection;
-    aboutSection : ContentSection;
-    products : [(Text, Product)];
-    processSteps : [ProcessStep];
-    teamMembers : [TeamMember];
-    media : [AdminCMS.MediaContent];
-    contacts : [ContactLocation];
-    floatingBubbleConfig : FloatingBubbleConfig;
-  };
-
-  public type AdminEntry = {
-    principalId : Text;
-  };
+  let HERO_SECTION_KEY : Text = "hero_section";
+  let ABOUT_SECTION_KEY : Text = "about_section";
+  let HEADER_SECTION_KEY : Text = "header_section";
 
   let accessControlState = AccessControl.initState();
   // include MixinAuthorization(accessControlState);
   // transient 
-  var adminCms : AdminCMS.AdminCMSData = AdminCMS.init();
-  let userProfiles = Map.empty<Principal, UserProfile>();
-  let categories = Map.empty<Text, Category>();
-  let products = Map.empty<Text, Product>();
-  let orders = Map.empty<Nat, Order>();
-  var nextOrderId = 0;
-  var floatingBubbleConfig : FloatingBubbleConfig = {
+  // var adminCms : AdminCMS.AdminCMSData = AdminCMS.init();
+
+  var floatingBubbleConfig : T.FloatingBubbleConfig = {
     backgroundColor = "#FFA500";
     icon = "phone";
     hotlineNumberOverride = ?"";
     isEnabled = true;
   };
-  var aboutSection : AboutSection = {
+  var footerData : T.FooterData = AdminCMS.getFooter();
+  var aboutSection : T.AboutSection = {
     introductoryHeading = "Khám phá câu chuyện và hành trình của chúng tôi";
     mainDescription = "Chúng tôi tự hào về di sản và hành trình của mình, kết hợp giữa truyền thống và sáng tạo để tạo ra sản phẩm độc đáo.";
     mediaSections = [
@@ -187,36 +80,7 @@ persistent actor {
         mediaUrl = "wine.jpg";
       },
     ];
-    processSteps = [
-      {
-        stepTitle = "Quy trình sản xuất";
-        description = "Các bước làm rượu chuyên nghiệp và kiểm soát chất lượng.";
-        mediaUrl = "wine.jpg";
-      },
-    ];
-    teamMembers = [
-      {
-        name = "Nguyễn Thị Lan";
-        role = "Chuyên gia thử rượu";
-        imageUrl = "sommelier-female.png";
-        bio = "Chuyên gia thử rượu với kinh nghiệm 15 năm.";
-      },
-      {
-        name = "Lê Văn Hòa";
-        role = "Nhà sản xuất rượu";
-        imageUrl = "winemaker-male.jpg";
-        bio = "Nhà sản xuất rượu nổi tiếng với 20 năm kinh nghiệm.";
-      },
-    ];
   };
-
-  let customerMessages = Map.empty<Nat, CustomerMessage>();
-  var nextMessageId = 0;
-
-  var nextMediaId = 0;
-  let mediaItems = Map.empty<Nat, MediaItem>();
-
-  var showProductPrices = true;
 
   func requireUserPermission(caller : Principal) : () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -231,131 +95,99 @@ persistent actor {
   };
 
   // User Profile System - Requires authentication
-  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+  public query ({ caller }) func getCallerUserProfile() : async ?T.UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can access their profile");
     };
-    Map.get(userProfiles, Principal.compare, caller);
+    userManager.read(caller);
   };
 
-  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?T.UserProfile {
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
-    Map.get(userProfiles, Principal.compare, user);
+    userManager.read(user);
   };
 
-  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+  public shared ({ caller }) func saveCallerUserProfile(profile : T.UserProfile) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can save profiles");
     };
-    Map.add(userProfiles, Principal.compare, caller, profile);
+    userManager.create(caller, {profile with id = nextUserId; principal = caller; });
+    nextUserId += 1;
   };
 
   // Public Query Endpoints - No authorization required (accessible to guests for public pages)
-  public query func getHeroSection() : async ContentSection {
-    adminCms.heroSection;
+  public query func getHeroSection() : async T.ContentSection {
+    switch (contentSectionManager.read(HERO_SECTION_KEY)) {
+      case (null) AdminCms.getHeroSection();
+      case (?hero) hero;
+    };
   };
 
-  public query func getAboutSection() : async AboutSection {
+  public query func getAboutSection() : async T.AboutSection {
     aboutSection;
   };
 
-  public query func getProcessSteps() : async [ProcessStep] {
-    adminCms.processSteps;
+  public query func getTeamMembers() : async [T.TeamMember] {
+    teamMemberManager.getAllValues();
   };
 
-  public query func getTeamMembers() : async [TeamMember] {
-    adminCms.teamMembers;
+  public query func getFooterData() : async T.FooterData {
+    footerData;
   };
 
-  public query func getFooterData() : async FooterData {
-    adminCms.footer;
+  public query func getHeader() : async T.ContentSection {
+    switch (contentSectionManager.read(HEADER_SECTION_KEY)) {
+      case (null) AdminCms.getHeader();
+      case (?header) header;
+    };
   };
 
-  public query func getHeader() : async ContentSection {
-    adminCms.header;
+  public query func getIconLinks() : async [T.IconLink] {
+    iconLinkManager.getAllValues();
   };
 
-  public query func getIconLinks() : async [IconLink] {
-    adminCms.iconLinks;
+  public query func getContacts() : async [T.ContactLocation] {
+    contactManager.getAllValues();
   };
 
-  public query func getProducts() : async [(Text, Product)] {
-    Iter.toArray(Map.entries(products));
-  };
-
-  public query func getProductByName(name : Text) : async ?Product {
-    Map.get(products, Text.compare, name);
-  };
-
-  public query func getContacts() : async [ContactLocation] {
-    adminCms.contacts;
-  };
-
-  public query func getHeadOfficeContact() : async ?ContactLocation {
-    let headOffices = Array.filter(adminCms.contacts,
-      func(contact) { contact.isHeadOffice }
+  public query func getHeadOfficeContact() : async ?T.ContactLocation {
+    let r = contactManager.filter(
+      func(_id, contact) { contact.isHeadOffice }
     );
-    if (headOffices.size() == 0) {
+    if (r.size() == 0) {
       return null;
     };
-    ?headOffices[0];
+    ?r[0].1;
   };
 
-  public query func getFloatingBubbleConfig() : async FloatingBubbleConfig {
+  public query func getFloatingBubbleConfig() : async T.FloatingBubbleConfig {
     floatingBubbleConfig;
   };
 
-  public query func getCategories() : async [Category] {
-    Iter.toArray(Map.values(categories));
+  public query func getCategories() : async [(Nat, T.Category)] {
+    categoryManager.getAll();
   };
 
-  public query func getProductsByCategory(categoryId : Text) : async [Product] {
-    Iter.toArray(Map.values(Map.filter(products, Text.compare,
-      func(_name, product) {
-        Array.find(product.categories, func(catId) { Text.equal(catId, categoryId) }) != null;
-      }
-    )));
-  };
 
   // Media Gallery - Public viewing (no authentication required for frontend /media page)
-  public query func getMediaItems(page : Nat) : async [MediaItem] {
-    let pageSize = 10;
-    let mediaValues : [MediaItem] = Iter.toArray(Map.values(mediaItems));
-    let sortedMedia = Array.sort(mediaValues,
-      func(a, b) {
-        Nat.compare(b.id, a.id);
-      }
-    );
-    let startIndex = page * pageSize;
-    let endIndex = startIndex + pageSize;
-    if (startIndex >= sortedMedia.size()) {
-      return [];
-    };
-    let actualEndIndex = if (endIndex > sortedMedia.size()) {
-      sortedMedia.size();
-    } else {
-      endIndex;
-    };
-    Array.sliceToArray(sortedMedia, startIndex, actualEndIndex);
+  public query func getMediaItems(page : Nat) : async [T.MediaItem] {
+    mediaManager.getListValues(page * 10, 10);
   };
 
   public query func getTotalMediaCount() : async Nat {
-    Map.size(mediaItems);
+    mediaManager.size();
   };
 
-  public query func getMediaPage(page : Nat) : async [MediaItem] {
-    let pageSize = 10;
-    let startIndex = page * pageSize;
-    let endIndex = startIndex + pageSize;
-    Array.sliceToArray(Iter.toArray(Map.values(mediaItems)), startIndex, endIndex);
+  public query func getMediaPage(page : Nat) : async [T.MediaItem] {
+    mediaManager.getListValues(page * 10, 10);
   };
 
   // Media CRUD - Requires authentication (admin CMS operations)
   public shared ({ caller }) func addMediaItem(url : Text, caption : Text, description : Text, mediaType : Text) : async () {
     requireUserPermission(caller);
-    let newMediaItem : MediaItem = {
+    let newMediaItem : T.MediaItem = {
       id = nextMediaId;
       url;
       caption;
@@ -363,13 +195,13 @@ persistent actor {
       uploadTimestamp = 0;
       mediaType;
     };
-    Map.add(mediaItems, Nat.compare, nextMediaId, newMediaItem);
+    mediaManager.create(nextMediaId, newMediaItem);
     nextMediaId += 1;
   };
 
   public shared ({ caller }) func updateMediaItem(id : Nat, url : Text, caption : Text, description : Text) : async () {
     requireUserPermission(caller);
-    switch (Map.get(mediaItems, Nat.compare, id)) {
+    switch (mediaManager.read(id)) {
       case (null) { Runtime.trap("Media item not found") };
       case (?mediaItem) {
         let updatedItem = {
@@ -378,64 +210,63 @@ persistent actor {
           caption;
           description;
         };
-        Map.add(mediaItems, Nat.compare, id, updatedItem);
+        mediaManager.update(id, updatedItem);
       };
     };
   };
 
-  public shared ({ caller }) func deleteMediaItem(id : Nat) : async () {
+  public shared ({ caller }) func deleteMediaItem(id : Nat) : async (Bool) {
     requireUserPermission(caller);
-    if (not Map.containsKey(mediaItems, Nat.compare, id)) {
+    if (not mediaManager.isExist(id)) {
       Runtime.trap("Media item not found");
     };
-    Map.remove(mediaItems, Nat.compare, id);
+    mediaManager.delete(id);
   };
 
   // Admin CMS Data - Requires authentication
-  public query ({ caller }) func getAdminCMSData() : async SerializableAdminCMSData {
+  public query ({ caller }) func getAdminCMSData() : async T.SerializableAdminCMSData {
     requireUserPermission(caller);
+
     {
-      adminCms with products = Map.toArray(products);
-      contacts = adminCms.contacts;
-      floatingBubbleConfig;
+      header = switch (contentSectionManager.read(HEADER_SECTION_KEY)) {
+          case (null) AdminCms.getHeader();
+          case (?header) header;
+      };
+      footer = footerData;
+      iconLinks = iconLinkManager.getAllValues();
+      heroSection = switch (contentSectionManager.read(HERO_SECTION_KEY)) {
+          case (null) AdminCms.getHeroSection();
+          case (?hero) hero;
+      };
+      aboutSection = switch (contentSectionManager.read(ABOUT_SECTION_KEY)) {
+          case (null) AdminCms.getAboutSection();
+          case (?about) about;
+      };
+      products = productManager.getAllValues();
+      teamMembers = teamMemberManager.getAllValues();
+      media = mediaManager.getAllValues();
+      contacts = contactManager.getAllValues();
+      floatingBubbleConfig = floatingBubbleConfig;
     };
   };
 
   // Order Management - Viewing requires authentication (contains sensitive customer data)
-  public query ({ caller }) func getOrders(page : Nat) : async [Order] {
+  public query ({ caller }) func getOrders(page : Nat) : async [T.Order] {
     requireUserPermission(caller);
-    let pageSize = 10;
-    let orderValues : [Order] = Iter.toArray(Map.values(orders));
-    let sortedOrders = Array.sort(orderValues,
-      func(a, b) {
-        Nat.compare(b.id, a.id);
-      }
-    );
-    let startIndex = page * pageSize;
-    let endIndex = startIndex + pageSize;
-    if (startIndex >= sortedOrders.size()) {
-      return [];
-    };
-    let actualEndIndex = if (endIndex > sortedOrders.size()) {
-      sortedOrders.size();
-    } else {
-      endIndex;
-    };
-    Array.sliceToArray(sortedOrders, startIndex, actualEndIndex);
+    orderManager.getListValues(page * 10, 10);
   };
 
   public query ({ caller }) func getTotalOrderCount() : async Nat {
-    requireUserPermission(caller);
-    Map.size(orders);
+    orderManager.size();
   };
 
-  public query ({ caller }) func getOrderById(_id : Nat) : async ?Order {
+  public query ({ caller }) func getOrderById(id : Nat) : async ?T.Order {
     requireUserPermission(caller);
-    null;
+    orderManager.read(id);
   };
 
   // Order Submission - No authentication required (guest checkout allowed)
-  public shared ({ caller }) func submitOrder(customerName : Text, customerEmail : Text, customerPhone : Text, items : [CartItem]) : async () {
+  public shared ({ caller }) func submitOrder(customerName : Text, customerEmail : Text, customerPhone : Text, items : [T.CartItem]) : async () {
     let orderItems = Array.map(items, 
       func(cartItem) {
         {
@@ -449,7 +280,7 @@ persistent actor {
       0,
       func(acc, item) { acc + item.totalPrice },
     );
-    let newOrder : Order = {
+    let newOrder : T.Order = {
       id = nextOrderId;
       customerName;
       customerEmail;
@@ -459,210 +290,222 @@ persistent actor {
       timestamp = 0;
       status = #pending;
     };
-    Map.add(orders, Nat.compare, nextOrderId, newOrder);
+    orderManager.create(nextOrderId, newOrder);
     nextOrderId += 1;
   };
 
   // Order Status Management - Requires authentication
-  public shared ({ caller }) func updateOrderStatus(orderId : Nat, status : OrderStatus) : async () {
+  public shared ({ caller }) func updateOrderStatus(orderId : Nat, status : T.OrderStatus) : async () {
     requireUserPermission(caller);
-    switch (Map.get(orders, Nat.compare, orderId)) {
+    switch (orderManager.read(orderId)) {
       case (null) { Runtime.trap("Order not found") };
       case (?order) {
         let updatedOrder = { order with status };
-        Map.add(orders, Nat.compare, orderId, updatedOrder);
+        orderManager.update(orderId, updatedOrder);
       };
     };
   };
 
   public shared ({ caller }) func cancelOrder(orderId : Nat) : async () {
     requireUserPermission(caller);
-    switch (Map.get(orders, Nat.compare, orderId)) {
+    switch (orderManager.read(orderId)) {
       case (null) { Runtime.trap("Order not found") };
       case (?order) {
         let updatedOrder = { order with status = #cancelled };
-        Map.add(orders, Nat.compare, orderId, updatedOrder);
+        orderManager.update(orderId, updatedOrder);
       };
     };
   };
 
   // Customer Message Management - Submission by anyone (guest contact forms), viewing requires authentication
-  public shared ({ caller }) func submitCustomerMessage(message : CustomerMessage) : async () {
-    Map.add(customerMessages, Nat.compare, nextMessageId, { message with id = nextMessageId });
+  public shared ({ caller }) func submitCustomerMessage(message : T.CustomerMessage) : async () {
+    let msg = { message with id = nextMessageId };
+    customerMessageManager.create(nextMessageId, msg);
     nextMessageId += 1;
   };
 
-  public query ({ caller }) func getCustomerMessages(page : Nat) : async [CustomerMessage] {
+  public query ({ caller }) func getCustomerMessages(page : Nat) : async [T.CustomerMessage] {
     requireUserPermission(caller);
-    let pageSize = 10;
-    let startIndex = page * pageSize;
-    let endIndex = startIndex + pageSize;
-    Array.sliceToArray(Iter.toArray(Map.values(customerMessages)), startIndex, endIndex);
+    customerMessageManager.getListValues(page * 10, 10);
   };
 
   public query ({ caller }) func getTotalMessageCount() : async Nat {
     requireUserPermission(caller);
-    Map.size(customerMessages);
+    customerMessageManager.size();
   };
 
-  public query ({ caller }) func getAllCustomerMessages() : async [(Nat, CustomerMessage)] {
+  public query ({ caller }) func getAllCustomerMessages() : async [(Nat, T.CustomerMessage)] {
     requireUserPermission(caller);
-    Iter.toArray(Map.entries(customerMessages));
+    customerMessageManager.getAll();
   };
 
   // Category Management - Requires authentication
-  public shared ({ caller }) func addCategory(category : Category) : async () {
+  public shared ({ caller }) func addCategory(name : Text) : async () {
     requireUserPermission(caller);
-    if (Map.containsKey(categories, Text.compare, category.id)) {
+    let filter = categoryManager.filter(
+      func(_id, category) {
+        Text.equal(category.name, name);
+      }
+    );
+    if (filter.size() > 0) {
       Runtime.trap("Category with this ID already exists");
     };
-    Map.add(categories, Text.compare, category.id, category);
+    categoryManager.create(nextCategoryId, {
+      id = nextCategoryId;
+      name;
+    });
+    nextCategoryId += 1;
   };
 
-  public shared ({ caller }) func updateCategory(category : Category) : async () {
+  public shared ({ caller }) func updateCategory(category : T.Category) : async () {
     requireUserPermission(caller);
-    if (not Map.containsKey(categories, Text.compare, category.id)) {
-      Runtime.trap("Category not found");
+    switch (categoryManager.read(category.id)) {
+      case (null) { Runtime.trap("Category not found") };
+      case (?c) {
+        categoryManager.update(category.id, category);
+      };
     };
-    Map.add(categories, Text.compare, category.id, category);
   };
 
-  public shared ({ caller }) func deleteCategory(categoryId : Text) : async () {
+  public shared ({ caller }) func deleteCategory(categoryId : Nat) : async (Bool) {
     requireUserPermission(caller);
-    if (not Map.containsKey(categories, Text.compare, categoryId)) {
+    if (categoryManager.isExist(categoryId) == false) {
       Runtime.trap("Category not found");
     };
-    Map.remove(categories, Text.compare, categoryId);
+    categoryManager.delete(categoryId);
   };
 
   // Product Management - Requires authentication
-  public shared ({ caller }) func addProduct(product : Product) : async () {
+  public shared ({ caller }) func addProduct(product : T.Product) : async () {
     requireUserPermission(caller);
-    Map.add(products, Text.compare, product.name, product);
+    productManager.create(nextProductId, { product with id = nextProductId });
+    nextProductId += 1;
   };
 
-  public shared ({ caller }) func updateProduct(product : Product) : async () {
+  public shared ({ caller }) func updateProduct(product : T.Product) : async () {
     requireUserPermission(caller);
-    if (not Map.containsKey(products, Text.compare, product.name)) {
-      Runtime.trap("Product not found");
+    switch (productManager.read(product.id)) {
+      case (null) { Runtime.trap("Product not found") };
+      case (?p) {
+        productManager.update(product.id, product);
+      };
     };
-    Map.add(products, Text.compare, product.name, product);
   };
 
-  public shared ({ caller }) func deleteProduct(name : Text) : async () {
+  public shared ({ caller }) func deleteProduct(id : Nat) : async (Bool) {
     requireUserPermission(caller);
-    Map.remove(products, Text.compare, name);
+    productManager.delete(id);
+  };
+
+  public query func getProducts() : async [(Nat, T.Product)] {
+    productManager.getAll();
+  };
+
+  public query func getProductByName(name : Text) : async ?T.Product {
+    let r = productManager.filter(
+      func(_name, product) {
+        Text.equal(product.name, name);
+      }
+    );
+    if (r.size() == 0) {
+      return null;
+    };
+    ?r[0].1;
+  };
+
+  public query func getProductsByCategory(categoryId : Text) : async [T.Product] {
+    let r = productManager.filter(
+      func(_id, product) {
+        Array.find(product.categories, func(cat) { Text.equal(cat.name, categoryId) }) != null;
+      }
+    );
+    Array.map<(Nat, T.Product), T.Product>(r, func(_k, v) { v });
   };
 
   // Admin CMS Update Endpoints - Require user permission
-  public shared ({ caller }) func updateHeroSection(hero : ContentSection) : async () {
+  public shared ({ caller }) func updateHeroSection(hero : T.ContentSection) : async () {
     requireUserPermission(caller);
-    adminCms := {
-      adminCms with heroSection = hero
-    };
+    contentSectionManager.update(HERO_SECTION_KEY, hero);
   };
 
-  public shared ({ caller }) func updateProcessSteps(steps : [ProcessStep]) : async () {
+  public shared ({ caller }) func updateTeamMembers(members : [T.TeamMember]) : async () {
     requireUserPermission(caller);
-    adminCms := {
-      adminCms with processSteps = steps
-    };
+    ignore members.map(
+      func(member) {
+        teamMemberManager.update(member.id, member);
+      }
+    );
   };
 
-  public shared ({ caller }) func updateTeamMembers(members : [TeamMember]) : async () {
+  public shared ({ caller }) func updateFooterData(footer : T.FooterData) : async () {
     requireUserPermission(caller);
-    adminCms := {
-      adminCms with teamMembers = members
-    };
+    footerData := footer;
   };
 
-  public shared ({ caller }) func updateFooterData(footer : FooterData) : async () {
+  public shared ({ caller }) func updateHeader(header : T.ContentSection) : async () {
     requireUserPermission(caller);
-    adminCms := {
-      adminCms with footer
-    };
+    contentSectionManager.update(HEADER_SECTION_KEY, header);
   };
 
-  public shared ({ caller }) func updateHeader(header : ContentSection) : async () {
+  public shared ({ caller }) func updateIconLinks(links : [T.IconLink]) : async () {
     requireUserPermission(caller);
-    adminCms := {
-      adminCms with header
-    };
+    ignore links.map(
+      func(link) {
+        iconLinkManager.update(link.id, link);
+      }
+    );
   };
 
-  public shared ({ caller }) func updateIconLinks(links : [IconLink]) : async () {
+  public shared ({ caller }) func updateMedia(media : [T.MediaItem]) : async () {
     requireUserPermission(caller);
-    adminCms := {
-      adminCms with iconLinks = links
-    };
-  };
-
-  public shared ({ caller }) func updateMedia(media : [MediaItem]) : async () {
-    requireUserPermission(caller);
-    adminCms := {
-      adminCms with media
-    };
+    ignore media.map(
+      func(item) {
+        mediaManager.update(item.id, item);
+      }
+    );
   };
 
   // Contact Management - Requires authentication
-  public shared ({ caller }) func addContact(newContact : ContactLocation) : async () {
+  public shared ({ caller }) func addContact(newContact : T.ContactLocation) : async () {
     requireUserPermission(caller);
-    adminCms := {
-      adminCms with contacts = Array.concat(adminCms.contacts, [newContact]);
+    contactManager.create(nextContactId, { newContact with id = nextContactId });
+    nextContactId += 1;
+  };
+
+  public shared ({ caller }) func updateContact(updatedContact : T.ContactLocation) : async () {
+    requireUserPermission(caller);
+    switch (contactManager.read(updatedContact.id)) {
+      case (null) { Runtime.trap("Contact not found") };
+      case (?c) {
+        contactManager.update(updatedContact.id, updatedContact);
+      };
     };
   };
 
-  public shared ({ caller }) func updateContact(updatedContact : ContactLocation) : async () {
+  public shared ({ caller }) func deleteContact(id : Nat) : async (Bool) {
     requireUserPermission(caller);
-    adminCms := {
-      adminCms with contacts = Array.map(adminCms.contacts,
-        func(contact) {
-          if (Text.equal(contact.name, updatedContact.name)) {
-            updatedContact;
-          } else {
-            contact;
-          };
-        }
-      );
-    };
+    contactManager.delete(id);
   };
 
-  public shared ({ caller }) func deleteContact(contactName : Text) : async () {
+  public shared ({ caller }) func setHeadOffice(id : Nat) : async () {
     requireUserPermission(caller);
-    adminCms := {
-      adminCms with contacts = Array.filter(adminCms.contacts,
-        func(contact) { not Text.equal(contact.name, contactName) }
-      );
-    };
-  };
-
-  public shared ({ caller }) func setHeadOffice(contactName : Text) : async () {
-    requireUserPermission(caller);
-    adminCms := {
-      adminCms with contacts = Array.map(adminCms.contacts,
-        func(contact) {
-          if (Text.equal(contact.name, contactName)) {
-            {
-              contact with isHeadOffice = true;
-            };
-          } else {
-            {
-              contact with isHeadOffice = false;
-            };
-          };
-        }
-      );
-    };
+    ignore contactManager.getAllValues().map(
+      func(contact) {
+        let isHeadOffice = if (contact.id == id) { true } else { false };
+        let updatedContact = { contact with isHeadOffice };
+        contactManager.update(contact.id, updatedContact);
+      }
+    );
   };
 
   // Floating Bubble Configuration - Requires authentication
-  public shared ({ caller }) func updateFloatingBubbleConfig(config : FloatingBubbleConfig) : async () {
+  public shared ({ caller }) func updateFloatingBubbleConfig(config : T.FloatingBubbleConfig) : async () {
     requireUserPermission(caller);
     floatingBubbleConfig := config;
   };
 
   // About Section Management - Requires authentication
-  public shared ({ caller }) func updateAboutSection(about : AboutSection) : async () {
+  public shared ({ caller }) func updateAboutSection(about : T.AboutSection) : async () {
     requireUserPermission(caller);
     aboutSection := about;
   };
@@ -670,7 +513,6 @@ persistent actor {
   // Reset to Default - Requires authentication
   public shared ({ caller }) func resetToDefault() : async () {
     requireUserPermission(caller);
-    adminCms := AdminCMS.init();
     floatingBubbleConfig := {
       backgroundColor = "#FFA500";
       icon = "phone";
@@ -687,35 +529,14 @@ persistent actor {
           mediaUrl = "wine.jpg";
         },
       ];
-      processSteps = [
-        {
-          stepTitle = "Quy trình nghiêm ngặt";
-          description = "Các bước kiểm tra chất lượng sản xuất rượu vang.";
-          mediaUrl = "wine-making.jpg";
-        },
-      ];
-      teamMembers = [
-        {
-          name = "Nguyễn Thị Lan";
-          role = "Chuyên gia thử rượu";
-          imageUrl = "sommelier-female.png";
-          bio = "Chuyên gia thử rượu hàng đầu với nhiều năm kinh nghiệm.";
-        },
-        {
-          name = "Lê Văn Hòa";
-          role = "Nhà sản xuất rượu";
-          imageUrl = "winemaker-male.jpg";
-          bio = "Nhà sản xuất rượu nổi tiếng trong ngành.";
-        },
-      ];
     };
   };
 
   // Admin Management - Requires admin permission
-  public query ({ caller }) func getAdmins() : async [AdminEntry] {
+  public query ({ caller }) func getAdmins() : async [T.AdminEntry] {
     requireAdminPermission(caller);
 
-    var adminList : [AdminEntry] = [];
+    var adminList : [T.AdminEntry] = [];
 
     for ((principal, role) in Map.entries(accessControlState.userRoles)) {
       if (role == #admin) {
