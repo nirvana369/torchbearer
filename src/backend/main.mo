@@ -430,7 +430,7 @@ persistent actor {
 
   public shared ({ caller }) func updateTeamMembers(members : [T.TeamMember]) : async () {
     requireUserPermission(caller);
-    ignore members.map(
+    ignore Array.map(members,
       func(member) {
         teamMemberManager.update(member.id, member);
       }
@@ -449,7 +449,7 @@ persistent actor {
 
   public shared ({ caller }) func updateIconLinks(links : [T.IconLink]) : async () {
     requireUserPermission(caller);
-    ignore links.map(
+    ignore Array.map(links,
       func(link) {
         iconLinkManager.update(link.id, link);
       }
@@ -458,7 +458,7 @@ persistent actor {
 
   public shared ({ caller }) func updateMedia(media : [T.MediaItem]) : async () {
     requireUserPermission(caller);
-    ignore media.map(
+    ignore Array.map(media,
       func(item) {
         mediaManager.update(item.id, item);
       }
@@ -489,7 +489,7 @@ persistent actor {
 
   public shared ({ caller }) func setHeadOffice(id : Nat) : async () {
     requireUserPermission(caller);
-    ignore contactManager.getAllValues().map(
+    ignore Array.map(contactManager.getAllValues(),
       func(contact) {
         let isHeadOffice = if (contact.id == id) { true } else { false };
         let updatedContact = { contact with isHeadOffice };

@@ -52,7 +52,6 @@ module {
       heroSection = defaultHero;
       aboutSection = defaultAbout;
       products = productsMap;
-      processSteps = [];
       teamMembers = [];
       contacts = [defaultContactLocation];
       media = [];
@@ -82,10 +81,6 @@ module {
     Runtime.trap("Internal functions should not be called directly");
   };
 
-  // public func updateProcessStepsInternal(_ : [T.ProcessStep]) : () {
-  //   Runtime.trap("Internal functions should not be called directly");
-  // };
-
   public func updateTeamMembersInternal(_ : [T.TeamMember]) : () {
     Runtime.trap("Internal functions should not be called directly");
   };
@@ -109,10 +104,6 @@ module {
   public func updateMediaInternal(_ : [T.MediaContent]) : () {
     Runtime.trap("Internal functions should not be called directly");
   };
-
-  // public func addProcessStepInternal(_ : T.ProcessStep) : () {
-  //   Runtime.trap("Internal functions should not be called directly");
-  // };
 
   func getVietnameseHeader() : T.ContentSection {
     {
@@ -141,26 +132,6 @@ module {
   func getVietnameseProducts() : [T.Product] {
     [];
   };
-
-  // func getVietnameseProcessSteps() : [T.ProcessStep] {
-  //   [
-  //     {
-  //       stepTitle = "Công Đoạn Thu Hoạch";
-  //       description = "Quá trình thu hoạch nho thủ công giúp bảo toàn chất lượng vùng thổ nhưỡng.";
-  //       mediaUrl = "grape-harvest.dim_800x600.jpg";
-  //     },
-  //     {
-  //       stepTitle = "Ủ Rượu";
-  //       description = "Ủ rượu theo quy trình kiểm soát nghiêm ngặt đảm bảo đạt chất lượng tốt nhất.";
-  //       mediaUrl = "wine-cellar.dim_1024x768.jpg";
-  //     },
-  //     {
-  //       stepTitle = "Thử Rượu";
-  //       description = "Chuyên gia thử rượu kiểm tra chất lượng và hương vị.";
-  //       mediaUrl = "wine-tasting.dim_1200x800.jpg";
-  //     },
-  //   ];
-  // };
 
   func getVietnameseTeamMembers() : [T.TeamMember] {
     [
@@ -212,10 +183,6 @@ module {
   public func getProducts() : [T.Product] {
     getVietnameseProducts();
   };
-
-  // public func getProcessSteps() : [T.ProcessStep] {
-  //   getVietnameseProcessSteps();
-  // };
 
   public func getTeamMembers() : [T.TeamMember] {
     getVietnameseTeamMembers();
