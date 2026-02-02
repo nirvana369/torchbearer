@@ -3,12 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useGetCategories, useAddCategory, useUpdateCategory, useDeleteCategory, useGetProducts } from '../../hooks/useQueries';
 import { Plus, Edit, Trash2, Save, X, Tag } from 'lucide-react';
 import { toast } from 'sonner';
-import type { Category } from '../../backend';
+import type { Category } from '../../../../declarations/backend/backend.did';
 
 export default function CategoriesEditor() {
   const { data: categories, isLoading } = useGetCategories();
@@ -19,57 +18,38 @@ export default function CategoriesEditor() {
 
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<bigint | null>(null);
 
-  const [formData, setFormData] = useState<Category>({
-    id: '',
+  const [formData, setFormData] = useState({
     name: '',
-    description: '',
   });
 
+  // Extract products from [bigint, Product][] format
   const products = productsData?.map(([_, product]) => product) || [];
 
   // Count products in each category
-  const getCategoryProductCount = (categoryId: string): number => {
+  const getCategoryProductCount = (categoryId: bigint): number => {
     return products.filter(product => 
-      product.categories.includes(categoryId)
+      product.categories.some(c => c.id === categoryId)
     ).length;
   };
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
-    setFormData(category);
+    setFormData({ name: category.name });
     setIsAdding(false);
   };
 
   const handleAdd = () => {
     setIsAdding(true);
     setEditingCategory(null);
-    setFormData({
-      id: '',
-      name: '',
-      description: '',
-    });
+    setFormData({ name: '' });
   };
 
   const handleCancel = () => {
     setIsAdding(false);
     setEditingCategory(null);
-    setFormData({
-      id: '',
-      name: '',
-      description: '',
-    });
-  };
-
-  const generateId = (name: string): string => {
-    return name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/đ/g, 'd')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+    setFormData({ name: '' });
   };
 
   const handleSave = async () => {
@@ -78,22 +58,15 @@ export default function CategoriesEditor() {
       return;
     }
 
-    if (!formData.description.trim()) {
-      toast.error('Vui lòng nhập mô tả danh mục');
-      return;
-    }
-
     try {
-      const categoryData = {
-        ...formData,
-        id: isAdding ? generateId(formData.name) : formData.id,
-      };
-
       if (isAdding) {
-        await addCategory.mutateAsync(categoryData);
+        await addCategory.mutateAsync(formData.name);
         toast.success('Đã thêm danh mục thành công');
       } else if (editingCategory) {
-        await updateCategory.mutateAsync(categoryData);
+        await updateCategory.mutateAsync({ 
+          id: editingCategory.id,
+          name: formData.name 
+        });
         toast.success('Đã cập nhật danh mục thành công');
       }
       handleCancel();
@@ -110,7 +83,7 @@ export default function CategoriesEditor() {
     }
   };
 
-  const handleDelete = async (categoryId: string) => {
+  const handleDelete = async (categoryId: bigint) => {
     const productCount = getCategoryProductCount(categoryId);
     if (productCount > 0) {
       toast.error(`Không thể xóa danh mục này vì có ${productCount} sản phẩm đang sử dụng`);
@@ -174,23 +147,8 @@ export default function CategoriesEditor() {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => setFormData({ name: e.target.value })}
                     placeholder="Ví dụ: Vang Đỏ"
-                  />
-                  {isAdding && formData.name && (
-                    <p className="text-xs text-foreground/60">
-                      ID sẽ được tạo tự động: {generateId(formData.name)}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Mô tả *</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Mô tả chi tiết về danh mục..."
-                    rows={3}
                   />
                 </div>
                 <div className="flex gap-2">
@@ -223,7 +181,7 @@ export default function CategoriesEditor() {
               categories.map((category) => {
                 const productCount = getCategoryProductCount(category.id);
                 return (
-                  <Card key={category.id}>
+                  <Card key={Number(category.id)}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">
                         <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -231,9 +189,8 @@ export default function CategoriesEditor() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-lg">{category.name}</h3>
-                          <p className="text-foreground/70 text-sm mt-1">{category.description}</p>
                           <div className="flex items-center gap-4 mt-2">
-                            <p className="text-xs text-foreground/60">ID: {category.id}</p>
+                            <p className="text-xs text-foreground/60">ID: {Number(category.id)}</p>
                             <p className="text-xs text-foreground/60">
                               {productCount} sản phẩm
                             </p>
@@ -272,7 +229,7 @@ export default function CategoriesEditor() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteConfirm && getCategoryProductCount(deleteConfirm) > 0 ? (
+              {deleteConfirm !== null && getCategoryProductCount(deleteConfirm) > 0 ? (
                 <>
                   Danh mục này đang được sử dụng bởi {getCategoryProductCount(deleteConfirm)} sản phẩm. 
                   Vui lòng xóa hoặc chuyển các sản phẩm sang danh mục khác trước khi xóa danh mục này.
@@ -286,9 +243,9 @@ export default function CategoriesEditor() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteCategory.isPending}>Hủy</AlertDialogCancel>
-            {deleteConfirm && getCategoryProductCount(deleteConfirm) === 0 && (
+            {deleteConfirm !== null && getCategoryProductCount(deleteConfirm) === 0 && (
               <AlertDialogAction
-                onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
+                onClick={() => deleteConfirm !== null && handleDelete(deleteConfirm)}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 disabled={deleteCategory.isPending}
               >

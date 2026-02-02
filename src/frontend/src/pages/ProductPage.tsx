@@ -35,14 +35,16 @@ export default function ProductPage() {
       const price = Number(product.price);
       // Only apply price filter if prices are visible
       const inPriceRange = !showPrices || (price >= priceRange[0] && price <= priceRange[1]);
-      const inCategory = selectedCategory === 'all' || product.categories.includes(selectedCategory);
+      // product.categories is an array of Category objects, compare by id string
+      const inCategory = selectedCategory === 'all' || product.categories.some(cat => String(cat.id) === String(selectedCategory));
       return inPriceRange && inCategory;
     });
   }, [products, priceRange, selectedCategory, showPrices]);
 
   const getCategoryName = (categoryId: string): string => {
-    const category = categories?.find(cat => cat.id === categoryId);
-    return category?.name || categoryId;
+    // categories returned from actor have numeric/bigint ids — compare as strings
+    const category = categories?.find(cat => String(cat.id) === String(categoryId));
+    return category?.name || String(categoryId);
   };
 
   if (isError) {
@@ -98,7 +100,7 @@ export default function ProductPage() {
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
                     {categories?.map(cat => (
-                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                      <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -190,9 +192,9 @@ export default function ProductPage() {
                         <CardDescription className="text-base">
                           {product.categories && product.categories.length > 0 ? (
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {product.categories.map((catId) => (
-                                <Badge key={catId} variant="outline" className="text-xs">
-                                  {getCategoryName(catId)}
+                              {product.categories.map((cat) => (
+                                <Badge key={String(cat.id)} variant="outline" className="text-xs">
+                                  {cat.name}
                                 </Badge>
                               ))}
                             </div>

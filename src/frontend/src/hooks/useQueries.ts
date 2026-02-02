@@ -114,7 +114,7 @@ export function useGetProcessSteps() {
 export function useGetProducts() {
   const { actor, isFetching } = useActor();
 
-  return useQuery<[string, Product][]>({
+  return useQuery<[bigint, Product][]>({
     queryKey: ['products'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
@@ -234,7 +234,9 @@ export function useGetCategories() {
     queryKey: ['categories'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      return actor.getCategories();
+      const results = await actor.getCategories();
+      // Backend returns [nat, Category][] format, extract just the Category objects
+      return results.map(([_, category]) => category);
     },
     enabled: !!actor && !isFetching,
     staleTime: 1000 * 60 * 5,
@@ -438,9 +440,9 @@ export function useDeleteProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.deleteProduct(name);
+      await actor.deleteProduct(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -454,9 +456,9 @@ export function useAddCategory() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (category: Category) => {
+    mutationFn: async (name: string) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.addCategory(category);
+      await actor.addCategory(name);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
@@ -484,7 +486,7 @@ export function useDeleteCategory() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (categoryId: string) => {
+    mutationFn: async (categoryId: bigint) => {
       if (!actor) throw new Error('Actor not available');
       await actor.deleteCategory(categoryId);
     },
@@ -712,9 +714,9 @@ export function useDeleteContact() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (contactName: string) => {
+    mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.deleteContact(contactName);
+      await actor.deleteContact(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
@@ -728,9 +730,9 @@ export function useSetHeadOffice() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (contactName: string) => {
+    mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.setHeadOffice(contactName);
+      await actor.setHeadOffice(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });

@@ -17,15 +17,15 @@ import AdminCms "admin-cms";
 // (with migration = Migration.run)
 persistent actor {
   
-  var nextMessageId = 0;
-  var nextMediaId = 0;
-  var nextOrderId = 0;
-  var nextProductId = 0;
-  var nextCategoryId = 0;
-  var nextContactId = 0;
-  var nextUserId = 0;
-  var nextTeamMemberId = 0;
-  var nextIconLinkId = 0;
+  var nextMessageId = 1;
+  var nextMediaId = 1;
+  var nextOrderId = 1;
+  var nextProductId = 1;
+  var nextCategoryId = 1;
+  var nextContactId = 1;
+  var nextUserId = 1;
+  var nextTeamMemberId = 1;
+  var nextIconLinkId = 1;
 
   var showProductPrices = true;
   
@@ -54,9 +54,6 @@ persistent actor {
   let HEADER_SECTION_KEY : Text = "header_section";
 
   let accessControlState = AccessControl.initState();
-  // include MixinAuthorization(accessControlState);
-  // transient 
-  // var adminCms : AdminCMS.AdminCMSData = AdminCMS.init();
 
   var floatingBubbleConfig : T.FloatingBubbleConfig = {
     backgroundColor = "#FFA500";
@@ -432,7 +429,12 @@ persistent actor {
     requireUserPermission(caller);
     ignore Array.map(members,
       func(member) {
-        teamMemberManager.update(member.id, member);
+        if (member.id <= 0) {
+          teamMemberManager.update(nextTeamMemberId, {member with id = nextTeamMemberId});
+          nextTeamMemberId += 1;
+        } else {
+          teamMemberManager.update(member.id, member);
+        };
       }
     );
   };
@@ -451,7 +453,12 @@ persistent actor {
     requireUserPermission(caller);
     ignore Array.map(links,
       func(link) {
-        iconLinkManager.update(link.id, link);
+        if (link.id <= 0) {
+          iconLinkManager.update(nextIconLinkId, {link with id = nextIconLinkId});
+          nextIconLinkId += 1;
+        } else {
+          iconLinkManager.update(link.id, link);
+        };
       }
     );
   };

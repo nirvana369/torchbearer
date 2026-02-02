@@ -102,8 +102,8 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <InternetIdentityProvider 
           loginOptions={{
-            identityProvider:`http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943`
-            // identityProvider:`http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
+            // identityProvider:`http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943`
+            identityProvider:`http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
           }}
 
           // loginOptions={{

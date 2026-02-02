@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Trash2, Plus, Save, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useGetContacts, useAddContact, useUpdateContact, useDeleteContact, useSetHeadOffice } from '../../hooks/useQueries';
-import type { ContactLocation } from '../../backend';
+import type { ContactLocation } from '../../../../declarations/backend/backend.did';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +28,7 @@ export default function ContactEditor() {
 
   const [editingContacts, setEditingContacts] = useState<ContactLocation[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [contactToDelete, setContactToDelete] = useState<string | null>(null);
+  const [contactToDelete, setContactToDelete] = useState<bigint | null>(null);
 
   useEffect(() => {
     if (contacts) {
@@ -38,6 +38,7 @@ export default function ContactEditor() {
 
   const handleAddContact = () => {
     const newContact: ContactLocation = {
+      id: 0n,
       name: 'Torch Bearer Tasmania Head Office',
       address: '1013–1015 Tea Tree Rd, Tea Tree, TAS, Australia',
       phone: '+84 904 117 789 / +61 469 440 995',
@@ -48,7 +49,7 @@ export default function ContactEditor() {
     setEditingContacts([...editingContacts, newContact]);
   };
 
-  const handleUpdateContact = (index: number, field: keyof ContactLocation, value: string | boolean) => {
+  const handleUpdateContact = (index: number, field: keyof ContactLocation, value: string | boolean | bigint) => {
     const updated = [...editingContacts];
     updated[index] = { ...updated[index], [field]: value };
     setEditingContacts(updated);
@@ -74,7 +75,7 @@ export default function ContactEditor() {
   };
 
   const handleDeleteContact = async () => {
-    if (!contactToDelete) return;
+    if (contactToDelete === null) return;
 
     try {
       await deleteContactMutation.mutateAsync(contactToDelete);
@@ -87,9 +88,9 @@ export default function ContactEditor() {
     }
   };
 
-  const handleSetHeadOffice = async (contactName: string) => {
+  const handleSetHeadOffice = async (contactId: bigint) => {
     try {
-      await setHeadOfficeMutation.mutateAsync(contactName);
+      await setHeadOfficeMutation.mutateAsync(contactId);
       toast.success('Đã đặt làm trụ sở chính');
     } catch (error) {
       toast.error('Có lỗi xảy ra');
@@ -97,8 +98,8 @@ export default function ContactEditor() {
     }
   };
 
-  const openDeleteDialog = (contactName: string) => {
-    setContactToDelete(contactName);
+  const openDeleteDialog = (contactId: bigint) => {
+    setContactToDelete(contactId);
     setDeleteDialogOpen(true);
   };
 
@@ -130,7 +131,7 @@ export default function ContactEditor() {
         </CardHeader>
         <CardContent className="space-y-6">
           {editingContacts.map((contact, index) => (
-            <Card key={index} className="border-2">
+            <Card key={Number(contact.id)} className="border-2">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -140,7 +141,7 @@ export default function ContactEditor() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => openDeleteDialog(contact.name)}
+                    onClick={() => openDeleteDialog(contact.id)}
                     disabled={deleteContactMutation.isPending}
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
@@ -206,7 +207,7 @@ export default function ContactEditor() {
                     <Switch
                       id={`head-office-${index}`}
                       checked={contact.isHeadOffice}
-                      onCheckedChange={() => handleSetHeadOffice(contact.name)}
+                      onCheckedChange={() => handleSetHeadOffice(contact.id)}
                       disabled={setHeadOfficeMutation.isPending}
                     />
                     <Label htmlFor={`head-office-${index}`} className="cursor-pointer">

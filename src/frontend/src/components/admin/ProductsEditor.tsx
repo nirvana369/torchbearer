@@ -10,7 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useGetProducts, useAddProduct, useUpdateProduct, useDeleteProduct, useGetCategories } from '../../hooks/useQueries';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
-import type { Product } from '../../../../declarations/backend/backend.did';
+import type { Product, Category } from '../../../../declarations/backend/backend.did';
 
 export default function ProductsEditor() {
   const { data: productsData, isLoading } = useGetProducts();
@@ -21,7 +21,7 @@ export default function ProductsEditor() {
 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<bigint | null>(null);
 
   const [formData, setFormData] = useState<Product>({
     name: '',
@@ -29,8 +29,12 @@ export default function ProductsEditor() {
     imageUrl: '',
     price: 0n,
     categories: [],
+    id: 0n,
+    paring: [],
+    tasting: [],
   });
 
+  // Extract products from [bigint, Product][] format
   const products = productsData?.map(([_, product]) => product) || [];
 
   const handleEdit = (product: Product) => {
@@ -48,6 +52,9 @@ export default function ProductsEditor() {
       imageUrl: '',
       price: 0n,
       categories: [],
+      id: 0n,
+      paring: [],
+      tasting: [],
     });
   };
 
@@ -60,16 +67,22 @@ export default function ProductsEditor() {
       imageUrl: '',
       price: 0n,
       categories: [],
+      id: 0n,
+      paring: [],
+      tasting: [],
     });
   };
 
-  const handleCategoryToggle = (categoryId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      categories: prev.categories.includes(categoryId)
-        ? prev.categories.filter(id => id !== categoryId)
-        : [...prev.categories, categoryId]
-    }));
+  const handleCategoryToggle = (category: Category) => {
+    setFormData(prev => {
+      const isSelected = prev.categories.some(c => c.id === category.id);
+      return {
+        ...prev,
+        categories: isSelected
+          ? prev.categories.filter(c => c.id !== category.id)
+          : [...prev.categories, category]
+      };
+    });
   };
 
   const handleSave = async () => {
@@ -103,9 +116,9 @@ export default function ProductsEditor() {
     }
   };
 
-  const handleDelete = async (name: string) => {
+  const handleDelete = async (id: bigint) => {
     try {
-      await deleteProduct.mutateAsync(name);
+      await deleteProduct.mutateAsync(id);
       toast.success('Đã xóa sản phẩm thành công');
       setDeleteConfirm(null);
     } catch (error) {
@@ -124,11 +137,6 @@ export default function ProductsEditor() {
     if (url.startsWith('/')) return url;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
     return `/assets/${url}`;
-  };
-
-  const getCategoryName = (categoryId: string): string => {
-    const category = categories?.find(cat => cat.id === categoryId);
-    return category?.name || categoryId;
   };
 
   if (isLoading) {
@@ -236,21 +244,24 @@ export default function ProductsEditor() {
                     </p>
                   ) : (
                     <div className="space-y-2 border rounded-md p-4">
-                      {categories.map((category) => (
-                        <div key={category.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`category-${category.id}`}
-                            checked={formData.categories.includes(category.id)}
-                            onCheckedChange={() => handleCategoryToggle(category.id)}
-                          />
-                          <label
-                            htmlFor={`category-${category.id}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                          >
-                            {category.name}
-                          </label>
-                        </div>
-                      ))}
+                      {categories.map((category) => {
+                        const isSelected = formData.categories.some(c => c.id === category.id);
+                        return (
+                          <div key={Number(category.id)} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`category-${category.id}`}
+                              checked={isSelected}
+                              onCheckedChange={() => handleCategoryToggle(category)}
+                            />
+                            <label
+                              htmlFor={`category-${category.id}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                            >
+                              {category.name}
+                            </label>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -282,7 +293,7 @@ export default function ProductsEditor() {
               </p>
             ) : (
               products.map((product) => (
-                <Card key={product.name}>
+                <Card key={Number(product.id)}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       {product.imageUrl && (
@@ -303,9 +314,9 @@ export default function ProductsEditor() {
                         </p>
                         {product.categories && product.categories.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {product.categories.map((catId) => (
-                              <Badge key={catId} variant="secondary" className="text-xs">
-                                {getCategoryName(catId)}
+                            {product.categories.map((category, idx) => (
+                              <Badge key={idx} variant="secondary" className="text-xs">
+                                {category.name}
                               </Badge>
                             ))}
                           </div>
@@ -323,7 +334,7 @@ export default function ProductsEditor() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setDeleteConfirm(product.name)}
+                          onClick={() => setDeleteConfirm(product.id)}
                           disabled={isAdding || editingProduct !== null || deleteProduct.isPending}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -343,13 +354,17 @@ export default function ProductsEditor() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa sản phẩm "{deleteConfirm}"? Hành động này không thể hoàn tác.
+              {deleteConfirm !== null && (
+                <>
+                  Bạn có chắc chắn muốn xóa sản phẩm "{products.find(p => p.id === deleteConfirm)?.name}"? Hành động này không thể hoàn tác.
+                </>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleteProduct.isPending}>Hủy</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
+              onClick={() => deleteConfirm !== null && handleDelete(deleteConfirm)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={deleteProduct.isPending}
             >

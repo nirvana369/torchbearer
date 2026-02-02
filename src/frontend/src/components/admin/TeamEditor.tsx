@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useGetTeamMembers, useUpdateTeamMembers } from '../../hooks/useQueries';
 import { Plus, Trash2, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import type { TeamMember } from '../../backend';
+import type { TeamMember } from '../../../../declarations/backend/backend.did';
 
 export default function TeamEditor() {
   const { data: members, isLoading } = useGetTeamMembers();
@@ -17,14 +17,16 @@ export default function TeamEditor() {
   const [hasChanges, setHasChanges] = useState(false);
 
   // Initialize local state when data loads
-  useState(() => {
+  useEffect(() => {
     if (members && !hasChanges) {
       setLocalMembers(members);
     }
-  });
+  }, [members, hasChanges]);
 
   const handleAddMember = () => {
     const newMember: TeamMember = {
+      // backend expects an `id: nat` field; use 0n for new items so the backend can assign an id
+      id: BigInt(0),
       name: '',
       role: '',
       imageUrl: '',
@@ -100,7 +102,7 @@ export default function TeamEditor() {
       <CardContent className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
           {localMembers.map((member, index) => (
-            <Card key={index} className="border-2">
+            <Card key={`${String((member as any).id ?? index)}-${index}`} className="border-2">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">Thành viên {index + 1}</CardTitle>
