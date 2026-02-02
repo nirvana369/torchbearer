@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { useGetIconLinks, useUpdateIconLinks } from '../../hooks/useQueries';
 import { Plus, Trash2, Save } from 'lucide-react';
 import { SiFacebook, SiInstagram, SiX, SiYoutube, SiLinkedin } from 'react-icons/si';
 import { toast } from 'sonner';
-import type { IconLink } from '../../backend';
+import type { IconLink } from '../../../../declarations/backend/backend.did';
 
 const iconOptions = [
   { value: 'facebook', label: 'Facebook', Icon: SiFacebook },
@@ -25,14 +25,15 @@ export default function IconLinksEditor() {
   const [hasChanges, setHasChanges] = useState(false);
 
   // Initialize local state when data loads
-  useState(() => {
+  useEffect(() => {
     if (links && !hasChanges) {
       setLocalLinks(links);
     }
-  });
+  }, [links, hasChanges]);
 
   const handleAddLink = () => {
     const newLink: IconLink = {
+      id: 0n,
       icon: 'facebook',
       link: '',
     };
@@ -109,7 +110,7 @@ export default function IconLinksEditor() {
           const Icon = iconOption?.Icon || SiFacebook;
 
           return (
-            <Card key={index} className="border-2">
+            <Card key={String(link.id ?? index)} className="border-2">
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded">

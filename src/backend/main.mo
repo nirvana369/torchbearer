@@ -4,7 +4,6 @@ import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 // import MixinAuthorization "authorization/MixingAuthorization";
-import AdminCMS "admin-cms";
 import AccessControl "authorization/access-control";
 import Array "mo:core/Array";
 import Iter "mo:core/Iter";
