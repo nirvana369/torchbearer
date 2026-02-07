@@ -109,7 +109,7 @@ persistent actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can save profiles");
     };
-    userManager.create(caller, {profile with id = nextUserId; principal = caller; });
+    userManager.create(caller, {profile with id = nextUserId; principal = Principal.toText(caller); });
     nextUserId += 1;
   };
 
@@ -556,9 +556,9 @@ persistent actor {
     adminList;
   };
 
-  public shared ({ caller }) func addAdmin(principal : Principal) : async () {
+  public shared ({ caller }) func addAdmin(principal : Text) : async () {
     requireAdminPermission(caller);
-    AccessControl.assignRole(accessControlState, caller, principal, #admin);
+    AccessControl.assignRole(accessControlState, caller, Principal.fromText(principal), #admin);
   };
 
   public shared ({ caller }) func removeAdmin(principal : Principal) : async () {

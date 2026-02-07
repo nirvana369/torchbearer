@@ -31,6 +31,8 @@ export default function AdminPage() {
     if (!profileName.trim()) return;
     
     await saveProfile.mutateAsync({
+      id : 0n,
+      principal: identity!.getPrincipal().toString(),
       name: profileName,
       email: '',
       role: 'admin',

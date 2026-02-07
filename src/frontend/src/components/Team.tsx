@@ -126,7 +126,7 @@ const Team = () => {
         <div className="mt-16 fade-in-section">
           <div className="relative h-96 rounded-lg overflow-hidden shadow-2xl">
             <img
-              src="/assets/wine-tasting.dim_1024x683.jpg"
+              src="/assets/wine.jpg"
               alt="Wine tasting experience"
               className="w-full h-full object-cover"
             />

@@ -10,7 +10,7 @@ import HeroEditor from './HeroEditor';
 import AboutEditor from './AboutEditor';
 import ProductsEditor from './ProductsEditor';
 import CategoriesEditor from './CategoriesEditor';
-import ProcessEditor from './ProcessEditor';
+// import ProcessEditor from './ProcessEditor';
 import TeamEditor from './TeamEditor';
 import ContactEditor from './ContactEditor';
 import FooterEditor from './FooterEditor';
@@ -119,9 +119,9 @@ export default function AdminDashboard() {
             <CategoriesEditor />
           </TabsContent>
 
-          <TabsContent value="process">
+          {/* <TabsContent value="process">
             <ProcessEditor />
-          </TabsContent>
+          </TabsContent> */}
 
           <TabsContent value="team">
             <TeamEditor />

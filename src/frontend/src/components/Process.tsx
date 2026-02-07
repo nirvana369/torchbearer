@@ -1,10 +1,10 @@
 import { Grape, Droplet, Wine, Sparkles } from 'lucide-react';
-import { useGetProcessSteps } from '../hooks/useQueries';
+// import { useGetProcessSteps } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 
 const Process = () => {
-  const { data: steps, isLoading } = useGetProcessSteps();
+  // const { data: steps, isLoading } = useGetProcessSteps();
 
   const defaultSteps = [
     {
@@ -33,11 +33,11 @@ const Process = () => {
     }
   ];
 
-  const icons = [Grape, Droplet, Wine, Sparkles];
-  const displaySteps = (steps && steps.length > 0 ? steps : defaultSteps).map((step, index) => ({
-    ...step,
-    icon: icons[index % icons.length],
-  }));
+  // const icons = [Grape, Droplet, Wine, Sparkles];
+  // const displaySteps = (steps && steps.length > 0 ? steps : defaultSteps).map((step, index) => ({
+  //   ...step,
+  //   icon: icons[index % icons.length],
+  // }));
 
   return (
     <section id="process" className="py-24 bg-background relative overflow-hidden">
@@ -59,7 +59,7 @@ const Process = () => {
           </p>
         </div>
 
-        {isLoading ? (
+        {/* {isLoading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[1, 2, 3, 4].map((i) => (
               <Card key={i} className="p-8">
@@ -102,7 +102,7 @@ const Process = () => {
               );
             })}
           </div>
-        )}
+        )} */}
 
         
         {/* Bilingual Content Sections */}

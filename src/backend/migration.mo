@@ -95,7 +95,7 @@ module {
   public type OldUserProfile = {
     id : Nat;
     name : Text;
-    principal : Principal;
+    principal : Text;
     email : Text;
     role : Text;
   };
@@ -134,7 +134,7 @@ module {
     title : Text;
     description : Text;
     mediaUrl : Text;
-    mediaType : Nat;
+    mediaType : Text;
   };
 
   public type OldAboutSection = {
@@ -283,17 +283,6 @@ module {
   // };
 
   public func run(old : OldActor) : NewActor {
-    let map = Array.map<OldAboutMediaSection, T.AboutMediaSection>(
-      old.aboutSection.mediaSections,
-      func (oms : OldAboutMediaSection) : T.AboutMediaSection {
-        {
-          title = oms.title;
-          description = oms.description;
-          mediaUrl = oms.mediaUrl;
-          mediaType = Nat.toText(oms.mediaType);
-        };
-      }
-    );
 
     {
       nextMessageId = old.nextMessageId;
@@ -324,7 +313,7 @@ module {
       aboutSection = {
         introductoryHeading = old.aboutSection.introductoryHeading;
         mainDescription = old.aboutSection.mainDescription;
-        mediaSections = map;
+        mediaSections = old.aboutSection.mediaSections;
         // processSteps = []; // Assuming empty for migration
         // teamMembers = []; // Assuming empty for migration
       };

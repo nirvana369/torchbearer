@@ -1,5 +1,6 @@
 import { SiFacebook, SiInstagram, SiX, SiZalo } from 'react-icons/si';
 import { useGetFooterData } from '../hooks/useQueries';
+import { useEffect } from 'react';
 
 const Footer = () => {
   const { data: footerData, isLoading } = useGetFooterData();

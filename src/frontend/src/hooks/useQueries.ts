@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { Principal } from '@icp-sdk/core/principal';
-import type { ContentSection, FooterData, TeamMember, ProcessStep, Product, UserProfile, IconLink, ContactLocation, FloatingBubbleConfig, Category, AboutSection, CustomerMessage, CartItem, MediaItem, AdminEntry } from './../../../declarations/backend/backend.did';
+import type { ContentSection, FooterData, TeamMember, Product, UserProfile, IconLink, ContactLocation, FloatingBubbleConfig, Category, AboutSection, CustomerMessage, CartItem, MediaItem, AdminEntry } from './../../../declarations/backend/backend.did';
 
 // User Profile Queries
 export function useGetCallerUserProfile() {
@@ -97,19 +97,19 @@ export function useGetTeamMembers() {
   });
 }
 
-export function useGetProcessSteps() {
-  const { actor, isFetching } = useActor();
+// export function useGetProcessSteps() {
+//   const { actor, isFetching } = useActor();
 
-  return useQuery<ProcessStep[]>({
-    queryKey: ['processSteps'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getProcessSteps();
-    },
-    enabled: !!actor && !isFetching,
-    staleTime: 1000 * 60 * 5,
-  });
-}
+//   return useQuery<ProcessStep[]>({
+//     queryKey: ['processSteps'],
+//     queryFn: async () => {
+//       if (!actor) throw new Error('Actor not available');
+//       return actor.getProcessSteps();
+//     },
+//     enabled: !!actor && !isFetching,
+//     staleTime: 1000 * 60 * 5,
+//   });
+// }
 
 export function useGetProducts() {
   const { actor, isFetching } = useActor();
@@ -597,20 +597,20 @@ export function useDeleteMediaItem() {
 }
 
 // Process Steps Mutations
-export function useUpdateProcessSteps() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
+// export function useUpdateProcessSteps() {
+//   const { actor } = useActor();
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (steps: ProcessStep[]) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updateProcessSteps(steps);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['processSteps'] });
-    },
-  });
-}
+//   return useMutation({
+//     mutationFn: async (steps: ProcessStep[]) => {
+//       if (!actor) throw new Error('Actor not available');
+//       return actor.updateProcessSteps(steps);
+//     },
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['processSteps'] });
+//     },
+//   });
+// }
 
 // Team Members Mutations
 export function useUpdateTeamMembers() {

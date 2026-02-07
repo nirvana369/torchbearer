@@ -1,4 +1,5 @@
 import Map "mo:core/Map";
+import Text "mo:core/Text";
 
 module {
 
@@ -88,7 +89,7 @@ module {
   public type UserProfile = {
     id : Nat;
     name : Text;
-    principal : Principal;
+    principal : Text;
     email : Text;
     role : Text;
   };

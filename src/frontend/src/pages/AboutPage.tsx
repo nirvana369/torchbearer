@@ -221,7 +221,7 @@ export default function AboutPage() {
     sections.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
-  }, []);
+  }, [aboutSection]);
 
   // If actor is fetching but we already have aboutSection data, allow render
   if (isFetching && !aboutSection) {
@@ -280,14 +280,14 @@ export default function AboutPage() {
               ) : (
                 // Dynamic Layout Content
                 <div className="max-w-6xl mx-auto">
-                  <div className="mb-12 text-center">
+                  {/* <div className="mb-12 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
                       Our Story in Pictures
                     </h2>
                     <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
                       Discover our journey through carefully curated moments that tell the story of our passion for winemaking
                     </p>
-                  </div>
+                  </div> */}
                   
                   <div className="space-y-12">
                     {mediaSections.map((section, index) => {
@@ -323,7 +323,7 @@ export default function AboutPage() {
           </section>
         )}
         {/* Process and Team Sections */}
-        <Process />
+        {/* <Process /> */}
         <Team />
       </main>
       <Footer />
