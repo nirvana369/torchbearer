@@ -127,6 +127,7 @@ module {
     title : Text;
     description : Text;
     mediaUrl : Text;
+    mediaType : Text;
   };
 
   public type AboutSection = {

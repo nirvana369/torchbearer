@@ -7,6 +7,196 @@ import { useActor } from '../hooks/useActor';
 import { useGetAboutSection } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 
+// Media Layout Components
+interface MediaSectionProps {
+  mediaUrl: string;
+  title: string;
+  description: string;
+  mediaType: string;
+}
+
+// Layout 1: Text first, then image (stacked)
+const TextImageStacked = ({ mediaUrl, title, description }: MediaSectionProps) => (
+  <div className="bg-card rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 fade-in-section">
+    <div className="p-6 space-y-3">
+      <h3 className="text-2xl font-bold text-foreground">{title}</h3>
+      <p className="text-foreground/70 leading-relaxed">{description}</p>
+    </div>
+    {mediaUrl && (
+      <div className="relative h-64">
+        <img
+          src={mediaUrl.startsWith('http') ? mediaUrl : `/assets/${mediaUrl}`}
+          alt={title}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.src = '/assets/wine.jpg';
+          }}
+        />
+      </div>
+    )}
+  </div>
+);
+
+// Layout 2: Text right, image left
+const ImageLeftTextRight = ({ mediaUrl, title, description }: MediaSectionProps) => (
+  <div className="bg-card rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 fade-in-section">
+    <div className="md:flex">
+      {mediaUrl && (
+        <div className="md:w-1/2 relative h-64 md:h-auto">
+          <img
+            src={mediaUrl.startsWith('http') ? mediaUrl : `/assets/${mediaUrl}`}
+            alt={title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = '/assets/wine.jpg';
+            }}
+          />
+        </div>
+      )}
+      <div className="md:w-1/2 p-6 space-y-3">
+        <h3 className="text-2xl font-bold text-foreground">{title}</h3>
+        <p className="text-foreground/70 leading-relaxed">{description}</p>
+      </div>
+    </div>
+  </div>
+);
+
+// Layout 3: Text left, image right
+const TextLeftImageRight = ({ mediaUrl, title, description }: MediaSectionProps) => (
+  <div className="bg-card rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 fade-in-section">
+    <div className="md:flex flex-row-reverse">
+      {mediaUrl && (
+        <div className="md:w-1/2 relative h-64 md:h-auto">
+          <img
+            src={mediaUrl.startsWith('http') ? mediaUrl : `/assets/${mediaUrl}`}
+            alt={title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = '/assets/wine.jpg';
+            }}
+          />
+        </div>
+      )}
+      <div className="md:w-1/2 p-6 space-y-3">
+        <h3 className="text-2xl font-bold text-foreground">{title}</h3>
+        <p className="text-foreground/70 leading-relaxed">{description}</p>
+      </div>
+    </div>
+  </div>
+);
+
+// Layout 4: Full-width with overlay
+const FullWidthWithOverlay = ({ mediaUrl, title, description }: MediaSectionProps) => (
+  <div className="relative rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 fade-in-section h-96">
+    {mediaUrl && (
+      <img
+        src={mediaUrl.startsWith('http') ? mediaUrl : `/assets/${mediaUrl}`}
+        alt={title}
+        className="w-full h-full object-cover absolute inset-0"
+        onError={(e) => {
+          e.currentTarget.src = '/assets/wine.jpg';
+        }}
+      />
+    )}
+    <div className="absolute inset-0 bg-black/40 flex items-center">
+      <div className="p-8 md:p-12 text-white max-w-2xl">
+        <h3 className="text-3xl md:text-4xl font-bold mb-4">{title}</h3>
+        <p className="text-lg leading-relaxed">{description}</p>
+      </div>
+    </div>
+  </div>
+);
+
+// Layout 5: Image with text overlay (centered)
+const ImageWithOverlayCentered = ({ mediaUrl, title, description }: MediaSectionProps) => (
+  <div className="relative rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 fade-in-section h-96">
+    {mediaUrl && (
+      <img
+        src={mediaUrl.startsWith('http') ? mediaUrl : `/assets/${mediaUrl}`}
+        alt={title}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          e.currentTarget.src = '/assets/wine.jpg';
+        }}
+      />
+    )}
+    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex flex-col justify-end p-8">
+      <h3 className="text-3xl md:text-4xl font-bold text-white mb-3">{title}</h3>
+      <p className="text-white/90 leading-relaxed max-w-2xl">{description}</p>
+    </div>
+  </div>
+);
+
+// Dynamic Layout Selector
+const DynamicMediaLayout = ({ section }: { section: any }) => {
+  const layoutType = section.mediaType || "1"; // Default to type 1
+  
+  const layouts = {
+    "1": <TextImageStacked {...section} />,
+    "2": <ImageLeftTextRight {...section} />,
+    "3": <TextLeftImageRight {...section} />,
+    "4": <FullWidthWithOverlay {...section} />,
+    "5": <ImageWithOverlayCentered {...section} />,
+  };
+  
+  return layouts[layoutType as keyof typeof layouts] || layouts[1];
+};
+
+// Skeleton Loaders for different layouts
+const MediaSkeleton = ({ type = 1 }: { type?: number }) => {
+  const skeletons = {
+    1: (
+      <div className="bg-card rounded-lg shadow-lg overflow-hidden">
+        <div className="p-6 space-y-3">
+          <Skeleton className="h-8 w-3/4" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+        <Skeleton className="h-64 w-full" />
+      </div>
+    ),
+    2: (
+      <div className="bg-card rounded-lg shadow-lg overflow-hidden md:flex">
+        <Skeleton className="md:w-1/2 h-64 md:h-auto" />
+        <div className="md:w-1/2 p-6 space-y-3">
+          <Skeleton className="h-8 w-3/4" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      </div>
+    ),
+    3: (
+      <div className="bg-card rounded-lg shadow-lg overflow-hidden md:flex flex-row-reverse">
+        <Skeleton className="md:w-1/2 h-64 md:h-auto" />
+        <div className="md:w-1/2 p-6 space-y-3">
+          <Skeleton className="h-8 w-3/4" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      </div>
+    ),
+    4: (
+      <div className="bg-card rounded-lg shadow-lg overflow-hidden h-96 relative">
+        <Skeleton className="absolute inset-0 w-full h-full" />
+        <div className="absolute inset-0 bg-black/40 flex items-center p-8 md:p-12">
+          <div className="max-w-2xl w-full">
+            <Skeleton className="h-10 w-3/4 mb-4" />
+            <Skeleton className="h-16 w-full" />
+          </div>
+        </div>
+      </div>
+    ),
+    5: (
+      <div className="bg-card rounded-lg shadow-lg overflow-hidden h-96 relative">
+        <Skeleton className="w-full h-full" />
+        <div className="absolute inset-0 flex flex-col justify-end p-8">
+          <Skeleton className="h-10 w-3/4 mb-3" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </div>
+    ),
+  };
+  
+  return skeletons[type as keyof typeof skeletons] || skeletons[1];
+};
+
 export default function AboutPage() {
   const { isFetching } = useActor();
   const { data: aboutSection, isLoading: aboutLoading } = useGetAboutSection();
@@ -33,8 +223,8 @@ export default function AboutPage() {
     return () => observer.disconnect();
   }, []);
 
-  // Only show loading during initial actor fetch
-  if (isFetching) {
+  // If actor is fetching but we already have aboutSection data, allow render
+  if (isFetching && !aboutSection) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
@@ -76,109 +266,62 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Bilingual Content Sections */}
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto space-y-16">
-              {/* Vietnamese Section */}
-              <div className="space-y-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-center text-primary">
-                  Nghệ Thuật Làm Rượu
-                </h2>
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="bg-card rounded-lg shadow-lg p-6 space-y-4">
-                    <h3 className="text-2xl font-bold text-foreground">
-                      Câu Chuyện, Lịch sử
-                    </h3>
-                    <p className="text-foreground/70 leading-relaxed">
-                      Trang trại rượu của chúng tôi được thành lập từ năm 1994 tại vùng rượu nổi tiếng thế giới – thung lũng sông Coal, thuộc tiểu bang Tasmania, Úc Đại Lợi.
-                    </p>
-                  </div>
-                  <div className="bg-card rounded-lg shadow-lg p-6 space-y-4">
-                    <h3 className="text-2xl font-bold text-foreground">
-                      Trang trại rượu
-                    </h3>
-                    <p className="text-foreground/70 leading-relaxed">
-                      Trang trại rượu nhỏ 'ese được chăm sóc theo phương pháp thuần tự nhiên (zen farming), để cao và tôn trọng đất mẹ và sự kì diệu của quả nho hóa.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* English Section */}
-              <div className="space-y-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-center text-accent">
-                  The Art of Wine Making
-                </h2>
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="bg-card rounded-lg shadow-lg p-6 space-y-4">
-                    <h3 className="text-2xl font-bold text-foreground">
-                      Our Vision
-                    </h3>
-                    <p className="text-foreground/70 leading-relaxed">
-                      What is one word that describe our wines unique character? It's Purity - we aspire to make the purest wines in the world from our virgin soil, biodynamic farming principles, and pure air and water of Tasmania.
-                    </p>
-                  </div>
-                  <div className="bg-card rounded-lg shadow-lg p-6 space-y-4">
-                    <h3 className="text-2xl font-bold text-foreground">
-                      Philosophy
-                    </h3>
-                    <p className="text-foreground/70 leading-relaxed">
-                      The island of Tasmania is the wonderland of natural world - the most pristine environment on earth, the last frontier where we can cultivate and enjoy the essence of life with compassion and harmony.
-                    </p>
-                  </div>
-                </div>
-                <div className="bg-primary/10 rounded-lg p-8 text-center">
-                  <blockquote className="text-2xl md:text-3xl font-bold text-primary italic">
-                    "Businesses don't make great wine, nature does"
-                  </blockquote>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Media Sections */}
+        {/* Media Sections with Dynamic Layouts */}
         {mediaSections.length > 0 && (
           <section className="py-16 bg-background">
             <div className="container mx-auto px-4">
-              <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-                {mediaSections.map((section, index) => (
-                  <div
-                    key={index}
-                    className="bg-card rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 fade-in-section"
-                  >
-                    {section.mediaUrl && (
-                      <div className="relative h-64">
-                        <img
-                          src={
-                            section.mediaUrl.startsWith('http')
-                              ? section.mediaUrl
-                              : `/assets/${section.mediaUrl}`
-                          }
-                          alt={section.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/assets/wine.jpg';
-                          }}
-                        />
-                      </div>
-                    )}
-                    <div className="p-6 space-y-3">
-                      <h3 className="text-2xl font-bold text-foreground">
-                        {section.title}
-                      </h3>
-                      <p className="text-foreground/70 leading-relaxed">
-                        {section.description}
-                      </p>
-                    </div>
+              {aboutLoading ? (
+                // Loading Skeletons
+                <div className="max-w-6xl mx-auto space-y-12">
+                  {[1, 2, 3, 4, 5].map((type, index) => (
+                    <MediaSkeleton key={index} type={index % 5 + 1} />
+                  ))}
+                </div>
+              ) : (
+                // Dynamic Layout Content
+                <div className="max-w-6xl mx-auto">
+                  <div className="mb-12 text-center">
+                    <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+                      Our Story in Pictures
+                    </h2>
+                    <p className="text-lg text-foreground/70 max-w-2xl mx-auto">
+                      Discover our journey through carefully curated moments that tell the story of our passion for winemaking
+                    </p>
                   </div>
-                ))}
-              </div>
+                  
+                  <div className="space-y-12">
+                    {mediaSections.map((section, index) => {
+                      const isFullWidth = section.mediaType === "4" || section.mediaType === "5";
+                      
+                      return (
+                        <div 
+                          key={index} 
+                          className={`${isFullWidth ? '' : 'md:max-w-5xl mx-auto'}`}
+                        >
+                          <DynamicMediaLayout section={section} />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Alternative Grid Layout */}
+                  {/*
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {mediaSections.map((section, index) => (
+                      <div 
+                        key={index} 
+                        className={section.type === 4 || section.type === 5 ? 'lg:col-span-2' : ''}
+                      >
+                        <DynamicMediaLayout section={section} />
+                      </div>
+                    ))}
+                  </div>
+                  */}
+                </div>
+              )}
             </div>
           </section>
         )}
-
         {/* Process and Team Sections */}
         <Process />
         <Team />

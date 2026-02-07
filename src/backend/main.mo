@@ -3,17 +3,15 @@ import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
-// import MixinAuthorization "authorization/MixingAuthorization";
 import AccessControl "authorization/access-control";
 import Array "mo:core/Array";
 import Iter "mo:core/Iter";
 import T "object/types";
 import { ObjectCRUD } "generic";
 import AdminCms "admin-cms";
+import Migration "migration";
 
-// import Migration "migration";
-
-// (with migration = Migration.run)
+(with migration = Migration.run)
 persistent actor {
   
   var nextMessageId = 1;
@@ -37,6 +35,32 @@ persistent actor {
   let contentSections = Map.empty<Text, T.ContentSection>();
   let iconLinks = Map.empty<Nat, T.IconLink>();
 
+  var floatingBubbleConfig : T.FloatingBubbleConfig = {
+    backgroundColor = "#FFA500";
+    icon = "phone";
+    hotlineNumberOverride = ?"";
+    isEnabled = true;
+  };
+  var footerData : T.FooterData = AdminCms.getFooter();
+  var aboutSection : T.AboutSection = {
+    introductoryHeading = "Khám phá câu chuyện và hành trình của chúng tôi";
+    mainDescription = "Chúng tôi tự hào về di sản và hành trình của mình, kết hợp giữa truyền thống và sáng tạo để tạo ra sản phẩm độc đáo.";
+    mediaSections = [
+      {
+        title = "Cơ sở sản xuất hiện đại";
+        description = "Kết hợp công nghệ tiên tiến với kỹ thuật truyền thống.";
+        mediaUrl = "wine.jpg";
+        mediaType = "1";
+      },
+      {
+        title = "Cam kết chất lượng";
+        description = "Mỗi chai rượu là sự kết tinh của tâm huyết và đam mê.";
+        mediaUrl = "wine.jpg";
+        mediaType = "2";
+      },
+    ];
+  };
+
   transient let userManager = ObjectCRUD<Principal, T.UserProfile>(userProfiles, Principal.compare);
   transient let productManager = ObjectCRUD<Nat, T.Product>(products, Nat.compare);
   transient let categoryManager = ObjectCRUD<Nat, T.Category>(categories, Nat.compare);
@@ -53,30 +77,6 @@ persistent actor {
   let HEADER_SECTION_KEY : Text = "header_section";
 
   let accessControlState = AccessControl.initState();
-
-  var floatingBubbleConfig : T.FloatingBubbleConfig = {
-    backgroundColor = "#FFA500";
-    icon = "phone";
-    hotlineNumberOverride = ?"";
-    isEnabled = true;
-  };
-  var footerData : T.FooterData = AdminCMS.getFooter();
-  var aboutSection : T.AboutSection = {
-    introductoryHeading = "Khám phá câu chuyện và hành trình của chúng tôi";
-    mainDescription = "Chúng tôi tự hào về di sản và hành trình của mình, kết hợp giữa truyền thống và sáng tạo để tạo ra sản phẩm độc đáo.";
-    mediaSections = [
-      {
-        title = "Cơ sở sản xuất hiện đại";
-        description = "Kết hợp công nghệ tiên tiến với kỹ thuật truyền thống.";
-        mediaUrl = "wine.jpg";
-      },
-      {
-        title = "Cam kết chất lượng";
-        description = "Mỗi chai rượu là sự kết tinh của tâm huyết và đam mê.";
-        mediaUrl = "wine.jpg";
-      },
-    ];
-  };
 
   func requireUserPermission(caller : Principal) : () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -533,6 +533,7 @@ persistent actor {
           title = "Chất lượng vượt trội";
           description = "Kết hợp truyền thống và hiện đại để mang đến sản phẩm cao cấp.";
           mediaUrl = "wine.jpg";
+          mediaType = "1";
         },
       ];
     };

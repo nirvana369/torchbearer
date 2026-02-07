@@ -1,8 +1,11 @@
+import { useState, useEffect } from 'react';
 import { useGetTeamMembers } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Team = () => {
   const { data: members, isLoading } = useGetTeamMembers();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
 
   const defaultTeam = [
     {
@@ -21,6 +24,17 @@ const Team = () => {
 
   const displayTeam = (members && members.length > 0) ? members : defaultTeam;
 
+  // reset to first page when team length changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [displayTeam.length]);
+
+  const totalPages = Math.max(1, Math.ceil(displayTeam.length / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const pagedTeam = displayTeam.slice(startIndex, startIndex + itemsPerPage);
+
+  const gridColsClass = displayTeam.length > itemsPerPage ? 'md:grid-cols-3' : 'md:grid-cols-2';
+
   return (
     <section id="team" className="py-24 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -34,8 +48,8 @@ const Team = () => {
         </div>
 
         {isLoading ? (
-          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-            {[1, 2].map((i) => (
+          <div className={`grid grid-cols-1 ${gridColsClass} gap-12 max-w-4xl mx-auto`}>
+            {Array.from({ length: itemsPerPage }).map((_, i) => (
               <div key={i} className="bg-card rounded-lg shadow-lg overflow-hidden">
                 <Skeleton className="h-80 w-full" />
                 <div className="p-8 space-y-2">
@@ -47,29 +61,66 @@ const Team = () => {
             ))}
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-            {displayTeam.map((member, index) => (
-              <div
-                key={index}
-                className="bg-card rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 fade-in-section"
-              >
-                <div className="relative h-80">
-                  <img
-                    src={member.imageUrl}
-                    alt={member.name}
-                    className="w-full h-full object-cover"
-                  />
+          <>
+            <div className={`grid grid-cols-1 ${gridColsClass} gap-12 max-w-4xl mx-auto`}>
+              {pagedTeam.map((member, index) => (
+                <div
+                  key={index + startIndex}
+                  className="bg-card rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 fade-in-section"
+                >
+                  <div className="relative h-80">
+                    <img
+                      src={member.imageUrl}
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-8">
+                    <h3 className="text-2xl font-bold text-foreground mb-2">
+                      {member.name}
+                    </h3>
+                    <p className="text-primary font-medium mb-4">{member.role}</p>
+                    <p className="text-foreground/70 leading-relaxed">{member.bio}</p>
+                  </div>
                 </div>
-                <div className="p-8">
-                  <h3 className="text-2xl font-bold text-foreground mb-2">
-                    {member.name}
-                  </h3>
-                  <p className="text-primary font-medium mb-4">{member.role}</p>
-                  <p className="text-foreground/70 leading-relaxed">{member.bio}</p>
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-md border ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted'}`}
+                >
+                  Previous
+                </button>
+
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }).map((_, i) => {
+                    const page = i + 1;
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-1 rounded-md border ${currentPage === page ? 'bg-foreground text-background' : 'hover:bg-muted'}`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
                 </div>
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-md border ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted'}`}
+                >
+                  Next
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
 
         <div className="mt-16 fade-in-section">

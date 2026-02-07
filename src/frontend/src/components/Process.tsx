@@ -104,6 +104,49 @@ const Process = () => {
           </div>
         )}
 
+        
+        {/* Bilingual Content Sections */}
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto space-y-16">
+              {/* Vietnamese Section */}
+              <div className="space-y-8">
+                <h2 className="text-3xl md:text-4xl font-bold text-center text-primary">
+                  Nghệ Thuật Làm Rượu
+                </h2>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="bg-card rounded-lg shadow-lg p-6 space-y-4">
+                    <h3 className="text-2xl font-bold text-foreground">
+                      Câu Chuyện, Lịch sử
+                    </h3>
+                    <p className="text-foreground/70 leading-relaxed">
+                      Trang trại rượu của chúng tôi được thành lập từ năm 1994 tại vùng rượu nổi tiếng thế giới – thung lũng sông Coal, thuộc tiểu bang Tasmania, Úc Đại Lợi.
+                    </p>
+                  </div>
+                  <div className="bg-card rounded-lg shadow-lg p-6 space-y-4">
+                    <h3 className="text-2xl font-bold text-foreground">
+                      Trang trại rượu
+                    </h3>
+                    <p className="text-foreground/70 leading-relaxed">
+                      Trang trại rượu nhỏ 'ese được chăm sóc theo phương pháp thuần tự nhiên (zen farming), để cao và tôn trọng đất mẹ và sự kì diệu của quả nho hóa.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* English Section */}
+              <div className="space-y-8">
+                
+                <div className="bg-primary/10 rounded-lg p-8 text-center">
+                  <blockquote className="text-2xl md:text-3xl font-bold text-primary italic">
+                    "Businesses don't make great wine, nature does"
+                  </blockquote>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <div className="mt-16 fade-in-section">
           <div className="bg-card p-8 md:p-12 rounded-lg shadow-xl">
             <div className="grid md:grid-cols-2 gap-8 items-center">
