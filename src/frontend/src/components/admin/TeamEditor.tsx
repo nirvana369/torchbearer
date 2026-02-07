@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useGetTeamMembers, useUpdateTeamMembers } from '../../hooks/useQueries';
 import { Plus, Trash2, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import type { TeamMember } from '../../../../declarations/backend/backend.did';
+import type { TeamMember } from '@/backend';
 
 export default function TeamEditor() {
   const { data: members, isLoading } = useGetTeamMembers();

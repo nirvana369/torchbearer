@@ -17,6 +17,7 @@ const Products = () => {
   const featuredProducts = products.slice(0, 3);
 
   const displayWines = featuredProducts.map(p => ({
+    id: p.id,
     name: p.name,
     type: 'Sản phẩm',
     description: p.description,
@@ -28,8 +29,8 @@ const Products = () => {
     console.error('Error loading products:', error);
   }
 
-  const handleOrderClick = (productName: string) => {
-    navigate({ to: `/order/${encodeURIComponent(productName)}` });
+  const handleOrderClick = (id: bigint) => {
+    navigate({ to: `/order/${encodeURIComponent(id.toString())}` });
   };
 
   return (
@@ -98,7 +99,7 @@ const Products = () => {
                       </div>
                     )}
                     <Button
-                      onClick={() => handleOrderClick(wine.name)}
+                      onClick={() => handleOrderClick(wine.id)}
                       className="w-full"
                       size="lg"
                     >

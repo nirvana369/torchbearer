@@ -10,7 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useGetProducts, useAddProduct, useUpdateProduct, useDeleteProduct, useGetCategories } from '../../hooks/useQueries';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
-import type { Product, Category } from '../../../../declarations/backend/backend.did';
+import type { Product, Category } from '@/backend';
 
 export default function ProductsEditor() {
   const { data: productsData, isLoading } = useGetProducts();

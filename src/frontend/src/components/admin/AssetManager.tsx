@@ -86,12 +86,14 @@ export const IcpAssetManager: React.FC<AssetManagerProps> = ({
     const initAssetManager = async () => {
       try {
         let agent: HttpAgent;
+
+        const host = process.env.DFX_NETWORK === 'local' ? 'http://127.0.0.1:4943' : 'https://icp-api.io'; // mainnet
         
         if (externalAgent) {
           agent = externalAgent;
         } else {
           agent = await HttpAgent.create({
-            host: 'http://127.0.0.1:4943'
+            host: host
           });
 
           if (process.env.DFX_NETWORK !== 'ic') {

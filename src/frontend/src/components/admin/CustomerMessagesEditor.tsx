@@ -1,19 +1,26 @@
 import { useState } from 'react';
-import { useGetCustomerMessages } from '../../hooks/useQueries';
+import { useGetCustomerMessages, useDeleteCustomerMessage } from '../../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Eye, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { CustomerMessage } from '../../backend';
+import { Eye, ChevronLeft, ChevronRight, Trash } from 'lucide-react';
+import type { CustomerMessage } from '../../../../declarations/backend/backend.did';
 
 export default function CustomerMessagesEditor() {
   const { data: messagesData, isLoading } = useGetCustomerMessages();
+  const deleteMutation = useDeleteCustomerMessage();
 
   const [currentPage, setCurrentPage] = useState(0);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<CustomerMessage | null>(null);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<{
+    id: bigint;
+    message: CustomerMessage;
+  } | null>(null);
 
   const messages = messagesData || [];
   const pageSize = 10;
@@ -27,8 +34,27 @@ export default function CustomerMessagesEditor() {
     setViewDialogOpen(true);
   };
 
+  const handleRequestDelete = (id: bigint, message: CustomerMessage) => {
+    setMessageToDelete({ id, message });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!messageToDelete) return;
+    try {
+      await deleteMutation.mutateAsync(messageToDelete.id);
+      setDeleteDialogOpen(false);
+      setMessageToDelete(null);
+      if ((messages.length - 1) <= currentPage * pageSize && currentPage > 0) {
+        setCurrentPage(currentPage - 1);
+      }
+    } catch (err) {
+      console.error('Failed to delete message', err);
+    }
+  };
+
   const formatDate = (timestamp: bigint) => {
-    const date = new Date(Number(timestamp) / 1000000); // Convert nanoseconds to milliseconds
+    const date = new Date(Number(timestamp) / 1000000);
     return date.toLocaleString('vi-VN', {
       year: 'numeric',
       month: '2-digit',
@@ -46,9 +72,9 @@ export default function CustomerMessagesEditor() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quản lý Tin nhắn & Đơn hàng</CardTitle>
+        <CardTitle>Quản lý Tin nhắn </CardTitle>
         <CardDescription>
-          Xem tin nhắn và đơn hàng từ khách hàng
+          Xem tin nhắn từ khách hàng
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -60,7 +86,7 @@ export default function CustomerMessagesEditor() {
           </div>
         ) : messages.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            Chưa có tin nhắn hoặc đơn hàng nào từ khách hàng
+            Chưa có tin nhắn nào từ khách hàng
           </div>
         ) : (
           <>
@@ -87,13 +113,23 @@ export default function CustomerMessagesEditor() {
                         {formatDate(message.timestamp)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleView(message)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <div className="flex justify-end items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleView(message)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRequestDelete(id, message)}
+                          >
+                            <Trash className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -101,7 +137,6 @@ export default function CustomerMessagesEditor() {
               </Table>
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-muted-foreground">
@@ -132,7 +167,6 @@ export default function CustomerMessagesEditor() {
           </>
         )}
 
-        {/* View Dialog */}
         <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -170,6 +204,44 @@ export default function CustomerMessagesEditor() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
                 Đóng
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Xóa Tin nhắn</DialogTitle>
+              <DialogDescription>
+                Bạn có chắc muốn xóa tin nhắn này? Hành động không thể hoàn tác.
+              </DialogDescription>
+            </DialogHeader>
+
+            {messageToDelete && (
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-sm font-semibold">Tên</Label>
+                  <p className="mt-1">{messageToDelete.message.name}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold">Nội dung</Label>
+                  <p className="mt-1 text-sm text-muted-foreground">{truncateText(messageToDelete.message.message, 200)}</p>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => { setDeleteDialogOpen(false); setMessageToDelete(null); }}>
+                Hủy
+              </Button>
+              <Button
+                className="ml-2"
+                variant="destructive"
+                onClick={handleConfirmDelete}
+                disabled={deleteMutation.status === 'pending'}
+              >
+                {deleteMutation.status === 'pending' ? 'Đang xóa...' : 'Xóa'}
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -101,16 +101,16 @@ function App() {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <QueryClientProvider client={queryClient}>
         <InternetIdentityProvider 
-          loginOptions={{
-            identityProvider:`http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943`
-            // identityProvider:`http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
-          }}
-
           // loginOptions={{
-          //   identityProvider: process.env.DFX_NETWORK === "ic"
-          //     ? `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
-          //     : "https://identity.ic0.app"
+          //   identityProvider:`http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943`
+          //   // identityProvider:`http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
           // }}
+
+          loginOptions={{
+            identityProvider: process.env.DFX_NETWORK === "ic"
+              ? `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
+              : "https://identity.ic0.app"
+          }}
         >
           <CartProvider>
             <RouterProvider router={router} />

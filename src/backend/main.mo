@@ -313,6 +313,14 @@ persistent actor {
     };
   };
 
+  public shared ({caller}) func deleteOrder(orderId : Nat) : async (Bool) {
+    requireUserPermission(caller);
+    if (not orderManager.isExist(orderId)) {
+      Runtime.trap("Order not found");
+    };
+    orderManager.delete(orderId);
+  };
+ 
   // Customer Message Management - Submission by anyone (guest contact forms), viewing requires authentication
   public shared ({ caller }) func submitCustomerMessage(message : T.CustomerMessage) : async () {
     let msg = { message with id = nextMessageId };
@@ -333,6 +341,14 @@ persistent actor {
   public query ({ caller }) func getAllCustomerMessages() : async [(Nat, T.CustomerMessage)] {
     requireUserPermission(caller);
     customerMessageManager.getAll();
+  };
+
+  public shared ({ caller }) func deleteCustomerMessage(id : Nat) : async (Bool) {
+    requireUserPermission(caller);
+    if (not customerMessageManager.isExist(id)) {
+      Runtime.trap("Customer message not found");
+    };
+    customerMessageManager.delete(id);
   };
 
   // Category Management - Requires authentication

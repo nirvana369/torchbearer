@@ -15,13 +15,13 @@ import TeamEditor from './TeamEditor';
 import ContactEditor from './ContactEditor';
 import FooterEditor from './FooterEditor';
 import MediaEditor from './MediaEditor';
-import { IcpAssetManager } from './AssetManager';
 import { canisterId } from 'declarations/assets';
 import IconLinksEditor from './IconLinksEditor';
 import FloatingBubbleEditor from './FloatingBubbleEditor';
 import CustomerMessagesEditor from './CustomerMessagesEditor';
 import AdminManagementEditor from './AdminManagementEditor';
 import ProductSettingsEditor from './ProductSettingsEditor';
+import OrdersEditor from './OrdersEditor';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -94,6 +94,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="links">Liên kết</TabsTrigger>
             <TabsTrigger value="contact">Liên hệ</TabsTrigger>
             <TabsTrigger value="messages">Tin nhắn</TabsTrigger>
+            <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="admins">Quản lý Admin</TabsTrigger>
             <TabsTrigger value="bubble">Bubble</TabsTrigger>
             <TabsTrigger value="footer">Footer</TabsTrigger>
@@ -142,6 +143,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="messages">
             <CustomerMessagesEditor />
+          </TabsContent>
+
+          <TabsContent value="orders">
+            <OrdersEditor />
           </TabsContent>
 
           <TabsContent value="admins">

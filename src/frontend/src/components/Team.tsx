@@ -8,18 +8,18 @@ const Team = () => {
   const itemsPerPage = 3;
 
   const defaultTeam = [
-    {
-      name: 'Hà',
-      role: 'Sommelier',
-      imageUrl: '/assets/sommelier-female.dim_400x400.jpg',
-      bio: 'Chuyên gia thử rượu với kinh nghiệm 15 năm.'
-    },
-    {
-      name: 'Đức',
-      role: 'Winemaker',
-      imageUrl: '/assets/winemaker-male.dim_400x400.jpg',
-      bio: 'Nhà sản xuất rượu vang với đam mê tạo ra những loại rượu đặc sắc.'
-    }
+    // {
+    //   name: 'Hà',
+    //   role: 'Sommelier',
+    //   imageUrl: '/assets/sommelier-female.dim_400x400.jpg',
+    //   bio: 'Chuyên gia thử rượu với kinh nghiệm 15 năm.'
+    // },
+    // {
+    //   name: 'Đức',
+    //   role: 'Winemaker',
+    //   imageUrl: '/assets/winemaker-male.dim_400x400.jpg',
+    //   bio: 'Nhà sản xuất rượu vang với đam mê tạo ra những loại rượu đặc sắc.'
+    // }
   ];
 
   const displayTeam = (members && members.length > 0) ? members : defaultTeam;

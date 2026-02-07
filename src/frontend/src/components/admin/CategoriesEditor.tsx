@@ -7,7 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useGetCategories, useAddCategory, useUpdateCategory, useDeleteCategory, useGetProducts } from '../../hooks/useQueries';
 import { Plus, Edit, Trash2, Save, X, Tag } from 'lucide-react';
 import { toast } from 'sonner';
-import type { Category } from '../../../../declarations/backend/backend.did';
+import type { Category }  from '@/backend';
 
 export default function CategoriesEditor() {
   const { data: categories, isLoading } = useGetCategories();

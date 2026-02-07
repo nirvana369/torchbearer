@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGetMediaItems, useAddMediaItem, useUpdateMediaItem, useDeleteMediaItem } from '../../hooks/useQueries';
 import { Plus, Trash2, Save, Image, Video, Edit2, Link, Copy, Info, RefreshCw, Upload, X, File, FolderOpen, Check, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import type { MediaItem } from '../../../../declarations/backend/backend.did';
+import type { MediaItem }  from '@/backend';
 
 import {
   Dialog,
@@ -150,8 +150,9 @@ export default function MediaEditor({
         if (externalAgent) {
           agent = externalAgent;
         } else {
+          const host = process.env.DFX_NETWORK === 'local' ? 'http://127.0.0.1:4943' : 'https://icp-api.io'; // mainnet
           agent = await HttpAgent.create({
-            host
+            host : host
           });
 
           if (process.env.DFX_NETWORK !== 'ic') {

@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Trash2, Plus, Save, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useGetContacts, useAddContact, useUpdateContact, useDeleteContact, useSetHeadOffice } from '../../hooks/useQueries';
-import type { ContactLocation } from '../../../../declarations/backend/backend.did';
+import type { ContactLocation } from '@/backend';
 import {
   AlertDialog,
   AlertDialogAction,

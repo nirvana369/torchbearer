@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import { Principal } from '@icp-sdk/core/principal';
-import type { ContentSection, FooterData, TeamMember, Product, UserProfile, IconLink, ContactLocation, FloatingBubbleConfig, Category, AboutSection, CustomerMessage, CartItem, MediaItem, AdminEntry } from './../../../declarations/backend/backend.did';
+import type { ContentSection, FooterData, TeamMember, Product, UserProfile, IconLink, ContactLocation, FloatingBubbleConfig, Category, AboutSection, CustomerMessage, CartItem, MediaItem, AdminEntry, OrderStatus } from './../../../declarations/backend/backend.did';
 
 // User Profile Queries
 export function useGetCallerUserProfile() {
@@ -11,7 +10,9 @@ export function useGetCallerUserProfile() {
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      return actor.getCallerUserProfile();
+      const res = await actor.getCallerUserProfile();
+      // Actor returns [] | [UserProfile] per candid; unwrap to null or UserProfile
+      return (res && (res as any).length) ? (res as any)[0] as UserProfile : null;
     },
     enabled: !!actor && !actorFetching,
     retry: false,
@@ -204,7 +205,8 @@ export function useGetHeadOfficeContact() {
     queryKey: ['headOfficeContact'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      return actor.getHeadOfficeContact();
+      const res = await actor.getHeadOfficeContact();
+      return (res && (res as any).length) ? (res as any)[0] as ContactLocation : null;
     },
     enabled: !!actor && !isFetching,
     staleTime: 1000 * 60 * 5,
@@ -513,6 +515,22 @@ export function useSubmitCustomerMessage() {
   });
 }
 
+// New: Delete Customer Message
+export function useDeleteCustomerMessage() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deleteCustomerMessage(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customerMessages'] });
+    },
+  });
+}
+
 // Order Mutations
 export function useSubmitOrder() {
   const { actor } = useActor();
@@ -536,6 +554,43 @@ export function useSubmitOrder() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['customerMessages'] });
+    },
+  });
+}
+
+// New: Delete Order Mutation
+export function useDeleteOrder() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not available');
+      // Backend exposes cancelOrder rather than deleteOrder
+      await actor.deleteOrder(id);
+    },
+    onSuccess: () => {
+      // Refresh orders list and total count
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders', 'count'] });
+    },
+  });
+}
+
+// New: Update Order Status Mutation
+export function useUpdateOrder() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: { id: bigint; status: OrderStatus }) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.updateOrderStatus(params.id, params.status);
+    },
+    onSuccess: () => {
+      // Refresh orders list and total count
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders', 'count'] });
     },
   });
 }
@@ -763,9 +818,10 @@ export function useAddAdmin() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (principal: Principal) => {
+    mutationFn: async (principalId: string) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.addAdmin(principal);
+      // backend expects principal id as string
+      await actor.addAdmin(principalId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admins'] });
@@ -778,9 +834,10 @@ export function useRemoveAdmin() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (principal: Principal) => {
+    mutationFn: async (principalId: string) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.removeAdmin(principal);
+      // removeAdmin in candid expects Principal type; pass as string if actor wrapper accepts it
+      await actor.removeAdmin(principalId as any);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admins'] });
