@@ -11,7 +11,7 @@ const About = () => {
     ? (aboutData.mediaSections[0].mediaUrl.startsWith('http')
         ? aboutData.mediaSections[0].mediaUrl
         : `/assets/${aboutData.mediaSections[0].mediaUrl}`)
-    : '/assets/wine.jpg';
+    : '/assets/image.png';
 
   const title = aboutData?.introductoryHeading || 'Doanh nghiệp Người Cầm Đuốc';
   const content = aboutData?.mainDescription || 'Với trang trại rượu được thành lập từ năm 1994, công ty rượu Người Cầm Đuốc được thành lập từ vùng rượu nổi tiếng thế giới – thung lũng sông Coal, thuộc tiểu bang Tasmania, Úc Đại Lợi.';
@@ -60,7 +60,7 @@ const About = () => {
                 alt="Vineyard aerial view"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 onError={(e) => {
-                  e.currentTarget.src = '/assets/wine.jpg';
+                  e.currentTarget.src = '/assets/image.png';
                 }}
               />
             )}

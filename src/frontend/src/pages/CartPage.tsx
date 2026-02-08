@@ -131,7 +131,7 @@ export default function CartPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {items.map((item) => {
-                const imageUrl = item.product.imageUrl.startsWith('/')
+                const imageUrl = item.product.imageUrl.startsWith('http')
                   ? item.product.imageUrl
                   : `/assets/${item.product.imageUrl}`;
                 const itemTotal = Number(item.product.price) * item.quantity;
@@ -145,7 +145,7 @@ export default function CartPage() {
                           alt={item.product.name}
                           className="w-24 h-24 object-cover rounded"
                           onError={(e) => {
-                            e.currentTarget.src = '/assets/wine-bottles-premium.dim_800x600.jpg';
+                            e.currentTarget.src = '/assets/image.png';
                           }}
                         />
                         <div className="flex-1">

@@ -61,7 +61,7 @@ export const IcpAssetManager: React.FC<AssetManagerProps> = ({
   host,
   concurrency = 16,
   maxChunkSize = 1900000,
-  maxSingleFileSize = 1900000,
+  maxSingleFileSize = 450000,
   onUploadComplete,
   onDeleteComplete,
   allowedTypes = ['image/*', 'video/*', 'application/pdf', 'text/plain'],

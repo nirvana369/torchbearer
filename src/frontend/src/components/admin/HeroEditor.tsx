@@ -141,7 +141,7 @@ export default function HeroEditor() {
   }
 
   const getPreviewImageUrl = (imageUrl: string) => {
-    if (!imageUrl) return '/assets/hero-vineyard.dim_1920x1080.jpg';
+    if (!imageUrl) return '/assets/image.png';
     return imageUrl.startsWith('http')
       ? imageUrl
       : `/assets/${imageUrl}`;
@@ -228,7 +228,7 @@ export default function HeroEditor() {
                         index === currentPreviewIndex ? 'opacity-100' : 'opacity-0'
                       }`}
                       onError={(e) => {
-                        e.currentTarget.src = '/assets/hero-vineyard.dim_1920x1080.jpg';
+                        e.currentTarget.src = '/assets/image.png';
                       }}
                     />
                   ))}
@@ -313,7 +313,7 @@ export default function HeroEditor() {
                     alt={`Preview ${index + 1}`}
                     className="w-full h-32 object-cover rounded"
                     onError={(e) => {
-                      e.currentTarget.src = '/assets/hero-vineyard.dim_1920x1080.jpg';
+                      e.currentTarget.src = '/assets/image.png';
                     }}
                   />
                 )}

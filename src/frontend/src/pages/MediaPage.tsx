@@ -98,7 +98,7 @@ export default function MediaPage() {
                     {currentMedia.mediaType === 'video' ? (
                       <video
                         key={currentMedia.url}
-                        src={`/assets/${currentMedia.url}`}
+                        src={currentMedia.url.startsWith('http') ? currentMedia.url : `/assets/${currentMedia.url}`}
                         controls
                         className="w-full h-full object-contain"
                         autoPlay
@@ -107,7 +107,7 @@ export default function MediaPage() {
                       />
                     ) : (
                       <img
-                        src={`/assets/${currentMedia.url}`}
+                        src={currentMedia.url.startsWith('http') ? currentMedia.url : `/assets/${currentMedia.url}`}
                         alt={currentMedia.caption || 'Media item'}
                         className="w-full h-full object-contain transition-opacity duration-700"
                       />
@@ -213,7 +213,7 @@ export default function MediaPage() {
                           </div>
                         ) : (
                           <img
-                            src={`/assets/${item.url}`}
+                            src={item.url.startsWith('http') ? item.url : `/assets/${item.url}`}
                             alt={item.caption || `Thumbnail ${index + 1}`}
                             className="w-full h-full object-cover"
                           />

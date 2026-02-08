@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import About from '../components/About';
@@ -6,13 +6,29 @@ import Products from '../components/Products';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import { useActor } from '../hooks/useActor';
+import AgeModal from '../components/AgeModal';
 
 export default function HomePage() {
   const { isFetching } = useActor();
 
+  // Initialize ageVerified from localStorage synchronously to avoid a flash
+  const getInitialAgeVerified = () => {
+    try {
+      if (typeof window === 'undefined') return null;
+      const raw = localStorage.getItem('ageVerified');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed?.confirmed === true ? true : false;
+    } catch {
+      return null;
+    }
+  };
+
+  const [ageVerified, setAgeVerified] = useState<boolean | null>(getInitialAgeVerified);
+
   useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
-    
+
     const observerOptions = {
       threshold: 0.1,
       rootMargin: '0px 0px -100px 0px'
@@ -32,18 +48,24 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, []);
 
-  // Only show loading during initial actor fetch
-  if (isFetching) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-lg text-foreground/60">Đang tải...</p>
-        </div>
-      </div>
-    );
-  }
+  // ...existing code... (removed inline scroll-lock effect; AgeModal handles it)
 
+  const handleConfirm = (confirmed: boolean) => {
+    try {
+      const payload = {
+        confirmed,
+        ua: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+        at: Date.now()
+      };
+      localStorage.setItem('ageVerified', JSON.stringify(payload));
+    } catch {
+      // ignore localStorage errors
+    }
+
+    setAgeVerified(confirmed);
+  };
+
+  // Render everything but use an overlay modal to block interaction when not verified
   return (
     <>
       <Header />
@@ -54,6 +76,19 @@ export default function HomePage() {
         <Contact />
       </main>
       <Footer />
+
+      {/* Loading spinner (only when actor is fetching and user already verified) */}
+      {isFetching && ageVerified === true && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-lg text-foreground/60">Đang tải...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Reusable age modal component */}
+      <AgeModal open={ageVerified !== true} onDecision={handleConfirm} />
     </>
   );
 }

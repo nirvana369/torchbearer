@@ -104,9 +104,9 @@ export default function OrderPage() {
     );
   }
 
-  const imageUrl = product.imageUrl.startsWith('/')
+  const imageUrl = product.imageUrl.startsWith('http')
     ? product.imageUrl
-    : `/assets/generated/${product.imageUrl}`;
+    : `/assets/${product.imageUrl}`;
   const totalPrice = Number(product.price) * quantity;
 
   // Mock data for demonstration - in production, this would come from backend
@@ -142,9 +142,9 @@ export default function OrderPage() {
   ];
 
   const accessories = [
-    { name: 'Túi vải Canvas cao cấp', price: 50000, image: '/assets/generated/wine-accessories.dim_800x600.jpg' },
-    { name: 'Hộp quà tặng sang trọng', price: 120000, image: '/assets/generated/wine-accessories.dim_800x600.jpg' },
-    { name: 'Dụng cụ mở rượu chuyên nghiệp', price: 180000, image: '/assets/generated/wine-accessories.dim_800x600.jpg' }
+    { name: 'Túi vải Canvas cao cấp', price: 50000, image: '/assets/image.png' },
+    { name: 'Hộp quà tặng sang trọng', price: 120000, image: '/assets/image.png' },
+    { name: 'Dụng cụ mở rượu chuyên nghiệp', price: 180000, image: '/assets/image.png' }
   ];
 
   return (
@@ -174,7 +174,7 @@ export default function OrderPage() {
                   alt={product.name}
                   className="w-full h-full object-contain p-8"
                   onError={(e) => {
-                    e.currentTarget.src = '/assets/generated/luxury-wine-bottle.dim_600x800.jpg';
+                    e.currentTarget.src = '/assets/image.png';
                   }}
                 />
               </div>
@@ -187,7 +187,7 @@ export default function OrderPage() {
                       alt={`${product.name} view ${i}`}
                       className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity"
                       onError={(e) => {
-                        e.currentTarget.src = '/assets/generated/wine-bottles-premium.dim_800x600.jpg';
+                        e.currentTarget.src = '/assets/image.png';
                       }}
                     />
                   </div>
@@ -483,7 +483,7 @@ export default function OrderPage() {
                             alt={accessory.name}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              e.currentTarget.src = '/assets/generated/wine-accessories.dim_800x600.jpg';
+                              e.currentTarget.src = '/assets/image.png';
                             }}
                           />
                         </div>
@@ -519,9 +519,9 @@ export default function OrderPage() {
               >
                 <CarouselContent className="-ml-4">
                   {relatedProducts.map(([id, relatedProduct]) => {
-                    const relatedImageUrl = relatedProduct.imageUrl.startsWith('/')
+                    const relatedImageUrl = relatedProduct.imageUrl.startsWith('http')
                       ? relatedProduct.imageUrl
-                      : `/assets/generated/${relatedProduct.imageUrl}`;
+                      : `/assets/${relatedProduct.imageUrl}`;
                     
                     return (
                       <CarouselItem key={id} className="pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
@@ -535,7 +535,7 @@ export default function OrderPage() {
                               alt={relatedProduct.name}
                               className="w-full h-full object-contain p-4"
                               onError={(e) => {
-                                e.currentTarget.src = '/assets/generated/wine-bottles-premium.dim_800x600.jpg';
+                                e.currentTarget.src = '/assets/image.png';
                               }}
                             />
                           </div>

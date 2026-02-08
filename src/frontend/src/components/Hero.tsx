@@ -29,7 +29,7 @@ const Hero = () => {
 
   const slideshowTiming = 5000; // 5 seconds between transitions
 
-  const title = heroData?.title || 'Vì cuộc sống là những trải nghiệm phi thường';
+  const title = heroData?.title || 'Mind - Purpose - Benevolence';
   const content = heroData?.content || '#xlife #torchbearer #Tmoment #người cầm đuốc';
 
   // Auto-advance slideshow
@@ -147,7 +147,7 @@ const Hero = () => {
             </>
           ) : (
             <>
-              <h1 className="text-5xl md:text-7xl font-bold text-foreground leading-tight">
+              <h1 className="text-5xl md:text-5xl font-bold text-foreground leading-tight">
                 {title}
               </h1>
               <p className="text-xl md:text-2xl text-accent font-semibold max-w-3xl mx-auto leading-relaxed">

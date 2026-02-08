@@ -29,7 +29,7 @@ const TextImageStacked = ({ mediaUrl, title, description }: MediaSectionProps) =
           alt={title}
           className="w-full h-full object-cover"
           onError={(e) => {
-            e.currentTarget.src = '/assets/wine.jpg';
+            e.currentTarget.src = '/assets/image.png';
           }}
         />
       </div>
@@ -48,7 +48,7 @@ const ImageLeftTextRight = ({ mediaUrl, title, description }: MediaSectionProps)
             alt={title}
             className="w-full h-full object-cover"
             onError={(e) => {
-              e.currentTarget.src = '/assets/wine.jpg';
+              e.currentTarget.src = '/assets/image.png';
             }}
           />
         </div>
@@ -72,7 +72,7 @@ const TextLeftImageRight = ({ mediaUrl, title, description }: MediaSectionProps)
             alt={title}
             className="w-full h-full object-cover"
             onError={(e) => {
-              e.currentTarget.src = '/assets/wine.jpg';
+              e.currentTarget.src = '/assets/image.png';
             }}
           />
         </div>
@@ -94,7 +94,7 @@ const FullWidthWithOverlay = ({ mediaUrl, title, description }: MediaSectionProp
         alt={title}
         className="w-full h-full object-cover absolute inset-0"
         onError={(e) => {
-          e.currentTarget.src = '/assets/wine.jpg';
+          e.currentTarget.src = '/assets/image.png';
         }}
       />
     )}
@@ -116,7 +116,7 @@ const ImageWithOverlayCentered = ({ mediaUrl, title, description }: MediaSection
         alt={title}
         className="w-full h-full object-cover"
         onError={(e) => {
-          e.currentTarget.src = '/assets/wine.jpg';
+          e.currentTarget.src = '/assets/image.png';
         }}
       />
     )}

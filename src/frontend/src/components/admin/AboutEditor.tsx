@@ -429,7 +429,7 @@ export default function AboutEditor() {
                                   alt="Preview"
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
-                                    e.currentTarget.src = '/assets/wine.jpg';
+                                    e.currentTarget.src = '/assets/image.png';
                                   }}
                                 />
                                 <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-2">
