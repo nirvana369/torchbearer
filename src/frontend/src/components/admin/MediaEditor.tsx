@@ -9,6 +9,7 @@ import { useGetMediaItems, useAddMediaItem, useUpdateMediaItem, useDeleteMediaIt
 import { Plus, Trash2, Save, Image, Video, Edit2, Link, Copy, Info, RefreshCw, Upload, X, File, FolderOpen, Check, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import type { MediaItem }  from '@/backend';
+import { compressImageInBrowser } from '../../lib/resizeImg';
 
 import {
   Dialog,
@@ -258,8 +259,9 @@ export default function MediaEditor({
 
       const progressInterval = setInterval(simulateProgress, 300);
 
+      const f = await compressImageInBrowser(file, { maxSizeBytes: 1024 * 1024 });
       // Store the file using AssetManager
-      const key = await assetManager.store(file);
+      const key = await assetManager.store(f.file);
       
       clearInterval(progressInterval);
       
