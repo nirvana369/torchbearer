@@ -18,7 +18,7 @@ export default function ProductPage() {
   const { data: productsData, isLoading, isError, error } = useGetProducts();
   const { data: categories } = useGetCategories();
   const { data: showPrices = true } = useGetProductPriceVisibility();
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000000]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const products = productsData?.map(([_, product]) => product) || [];

@@ -88,7 +88,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="products">Sản phẩm</TabsTrigger>
             <TabsTrigger value="settings">Cài đặt SP</TabsTrigger>
             <TabsTrigger value="categories">Danh mục</TabsTrigger>
-            <TabsTrigger value="process">Quy trình</TabsTrigger>
+            {/* <TabsTrigger value="process">Quy trình</TabsTrigger> */}
             <TabsTrigger value="team">Đội ngũ</TabsTrigger>
             <TabsTrigger value="media">Media</TabsTrigger>
             <TabsTrigger value="links">Liên kết</TabsTrigger>

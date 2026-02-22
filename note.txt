@@ -1,1 +1,38 @@
 assetstorage: https://github.com/dfinity/sdk/tree/master/src/distributed
+
+====================================================
+i was update backend interface, add id for some object & remove some fields of an object, based on this backend.did (interface), please review all frontend & update logic related about functions that frontend call to backend
+
+1. put your canister_ids.json at same level dfx.json:
+{
+  "__Candid_UI": {
+    "local": "u6s2n-gx777-77774-qaaba-cai"
+  },
+  "assets": {
+    "local": "uzt4z-lp777-77774-qaabq-cai",
+    "ic" : "vatl5-piaaa-aaaaf-qat4q-cai"
+  },
+  "backend": {
+    "local": "uxrrr-q7777-77774-qaaaq-cai",
+    "ic" : "vjqab-zaaaa-aaaaf-qat5a-cai"
+  },
+  "frontend": {
+    "local": "umunu-kh777-77774-qaaca-cai",
+    "ic" : "vorgv-uyaaa-aaaaf-qat5q-cai"
+  }
+}
+
+2. build canister
+dfx build [backend/frontend/assets] --network ic
+
+dfx build assets --network ic
+dfx build frontend --network ic
+
+3. install
+dfx canister install [backend/frontend/assets] --mode [install/reinstall/upgrade] --network ic
+
+dfx canister install frontend --mode upgrade --network ic
+dfx canister install assets --mode upgrade --network ic
+
+dfx canister install [backend/frontend/assets] --mode [install/reinstall/upgrade] --network ic
+dfx canister install [backend/frontend/assets] --mode [install/reinstall/upgrade] --network ic
