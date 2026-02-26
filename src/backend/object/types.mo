@@ -97,7 +97,7 @@ module {
   public type FloatingBubbleConfig = {
     backgroundColor : Text;
     icon : Text;
-    hotlineNumberOverride : ?Text;
+    hotlineNumberOverride : Text;
     isEnabled : Bool;
   };
 

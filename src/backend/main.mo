@@ -38,7 +38,7 @@ persistent actor {
   var floatingBubbleConfig : T.FloatingBubbleConfig = {
     backgroundColor = "#FFA500";
     icon = "phone";
-    hotlineNumberOverride = ?"";
+    hotlineNumberOverride = "";
     isEnabled = true;
   };
   var footerData : T.FooterData = AdminCms.getFooter();
@@ -538,7 +538,7 @@ persistent actor {
     floatingBubbleConfig := {
       backgroundColor = "#FFA500";
       icon = "phone";
-      hotlineNumberOverride = ?"";
+      hotlineNumberOverride = "";
       isEnabled = true;
     };
     aboutSection := {

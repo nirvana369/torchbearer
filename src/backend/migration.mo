@@ -3,6 +3,7 @@ import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
 import Text "mo:core/Text";
 import Array "mo:core/Array";
+import Option "mo:core/Option";
 import AdminCMS "admin-cms";
 import T "object/types";
 
@@ -103,7 +104,7 @@ module {
   public type OldFloatingBubbleConfig = {
     backgroundColor : Text;
     icon : Text;
-    hotlineNumberOverride : ?Text;
+    hotlineNumberOverride : Text;
     isEnabled : Bool;
   };
 

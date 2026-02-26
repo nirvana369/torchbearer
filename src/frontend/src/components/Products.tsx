@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useGetProductPriceVisibility } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowRight, ShoppingCart } from 'lucide-react';
-import type {Product } from './../../../declarations/backend/backend.did';
+import type {Product } from '@/backend';
 
 interface DisplayWine {
   id: bigint;
