@@ -1,19 +1,22 @@
-import { SiFacebook, SiInstagram, SiX, SiZalo } from 'react-icons/si';
-import { useGetFooterData } from '../hooks/useQueries';
+import { SiFacebook, SiInstagram, SiX, SiYoutube, SiLinkedin } from 'react-icons/si';
+import { useGetFooterData, useGetIconLinks } from '../hooks/useQueries';
 import { useEffect } from 'react';
 
 const Footer = () => {
   const { data: footerData, isLoading } = useGetFooterData();
+  const { data: iconLinks, isLoading: linksLoading } = useGetIconLinks();
 
   const copyright = footerData?.copyright || '© 2024 Torch Bearer Tasmania. All rights reserved.';
-  const socialMedia = footerData?.socialMedia || [];
 
-  const getSocialIcon = (url: string) => {
-    if (url.includes('facebook')) return <SiFacebook className="h-5 w-5" />;
-    if (url.includes('x')) return <SiX className="h-5 w-5" />;
-    if (url.includes('zalo')) return <SiZalo className="h-5 w-5" />;
-    if (url.includes('instagram')) return <SiInstagram className="h-5 w-5" />;
-    return null;
+  const getSocialIcon = (iconName: string) => {
+    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+      facebook: SiFacebook,
+      instagram: SiInstagram,
+      x: SiX,
+      youtube: SiYoutube,
+      linkedin: SiLinkedin,
+    };
+    return iconMap[iconName.toLowerCase()];
   };
 
   return (
@@ -32,17 +35,23 @@ const Footer = () => {
             <>
               <p className="text-foreground/60">{copyright}</p>
               <div className="flex space-x-4">
-                {socialMedia.map((url, index) => (
-                  <a
-                    key={index}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-primary/10 hover:bg-primary/20 p-2 rounded-full transition-colors"
-                  >
-                    {getSocialIcon(url)}
-                  </a>
-                ))}
+                {/* Social Media Links */}
+                {iconLinks && iconLinks.length > 0 && iconLinks.map((link, index) => {
+                  const SocialIcon = getSocialIcon(link.icon);
+                  if (!SocialIcon) return null;
+
+                  return (
+                    <a
+                      key={index}
+                      href={link.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+                    >
+                      <SocialIcon className="h-5 w-5 text-foreground" />
+                    </a>
+                  );
+                })}
               </div>
             </>
           )}

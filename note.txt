@@ -26,12 +26,14 @@ i was update backend interface, add id for some object & remove some fields of a
 dfx build [backend/frontend/assets] --network ic
 
 dfx build assets --network ic
+dfx build backend --network ic
 dfx build frontend --network ic
 
 3. install
 dfx canister install [backend/frontend/assets] --mode [install/reinstall/upgrade] --network ic
 
 dfx canister install frontend --mode upgrade --network ic
+dfx canister install backend --mode upgrade --network ic
 dfx canister install assets --mode upgrade --network ic
 
 dfx canister install [backend/frontend/assets] --mode [install/reinstall/upgrade] --network ic

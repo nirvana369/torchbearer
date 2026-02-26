@@ -17,15 +17,15 @@ const Hero = () => {
   ];
 
   // Get images from backend or use defaults
-  // const heroImages = heroData?.mediaUrl 
-  //   ? [
-  //       heroData.mediaUrl.startsWith('http') 
-  //         ? heroData.mediaUrl 
-  //         : `/assets/${heroData.mediaUrl}`
-  //     ]
-  //   : defaultImages;
+  const heroImages = heroData?.mediaUrl 
+    ? [
+        heroData.mediaUrl.startsWith('http') 
+          ? heroData.mediaUrl 
+          : `/assets/${heroData.mediaUrl}`
+      ]
+    : defaultImages;
 
-    const heroImages = defaultImages;
+    // const heroImages = defaultImages;
 
   const slideshowTiming = 5000; // 5 seconds between transitions
 
