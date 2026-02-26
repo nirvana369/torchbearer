@@ -7,9 +7,11 @@ import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import { useActor } from '../hooks/useActor';
 import AgeModal from '../components/AgeModal';
+import { useGetProducts } from '../hooks/useQueries';
 
 export default function HomePage() {
   const { isFetching } = useActor();
+  const { data: productsData, isLoading, isError, error } = useGetProducts();
 
   // Initialize ageVerified from localStorage synchronously to avoid a flash
   const getInitialAgeVerified = () => {
@@ -46,7 +48,7 @@ export default function HomePage() {
     sections.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
-  }, []);
+  }, [productsData?.length]);
 
   // ...existing code... (removed inline scroll-lock effect; AgeModal handles it)
 
@@ -72,7 +74,7 @@ export default function HomePage() {
       <main>
         <Hero />
         <About />
-        <Products />
+        <Products products={productsData?.map(([id, p]) => p)} isLoading={isLoading} isError={isError} error={error} />
         <Contact />
       </main>
       <Footer />

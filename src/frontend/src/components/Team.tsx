@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useGetTeamMembers } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const Team = () => {
-  const { data: members, isLoading } = useGetTeamMembers();
+const Team = ({ members = [], isLoading = false }: { members?: any[]; isLoading?: boolean }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
@@ -123,7 +121,7 @@ const Team = () => {
           </>
         )}
 
-        <div className="mt-16 fade-in-section">
+        {/* <div className="mt-16 fade-in-section">
           <div className="relative h-96 rounded-lg overflow-hidden shadow-2xl">
             <img
               src="/assets/wine.jpg"
@@ -141,7 +139,8 @@ const Team = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
+
       </div>
     </section>
   );

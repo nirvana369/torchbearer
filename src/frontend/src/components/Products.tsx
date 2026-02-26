@@ -2,27 +2,38 @@ import { useNavigate } from '@tanstack/react-router';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useGetProducts, useGetProductPriceVisibility } from '../hooks/useQueries';
+import { useGetProductPriceVisibility } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowRight, ShoppingCart } from 'lucide-react';
+import type {Product } from './../../../declarations/backend/backend.did';
 
-const Products = () => {
+interface DisplayWine {
+  id: bigint;
+  name: string;
+  type: string;
+  description: string;
+  image: string;
+  price: bigint;
+}
+
+interface ProductsProps {
+  products?: Product[];
+  isLoading?: boolean;
+  isError?: boolean;
+  error?: unknown;
+}
+
+const Products = ({ products = [], isLoading = false, isError = false, error }: ProductsProps) => {
   const navigate = useNavigate();
-  const { data: productsData, isLoading, isError, error } = useGetProducts();
   const { data: showPrices = true } = useGetProductPriceVisibility();
 
-  const products = productsData?.map(([_, product]) => product) || [];
-
-  // Show only first 3 products as featured
-  const featuredProducts = products.slice(0, 3);
-
-  const displayWines = featuredProducts.map(p => ({
+  const displayWines = (products || []).map((p) => ({
     id: p.id,
-    name: p.name,
-    type: 'Sản phẩm',
-    description: p.description,
-    image: p.imageUrl.startsWith('http') ? p.imageUrl : `/assets/${p.imageUrl}`,
-    price: p.price,
+    name: (p as any).name || 'Không tên',
+    type: (p as any).categories && (p as any).categories.length > 0 ? (p as any).categories[0].name : 'Rượu Vang',
+    description: (p as any).description || '',
+    image: typeof (p as any).imageUrl === 'string' && (p as any).imageUrl.startsWith('http') ? (p as any).imageUrl : `/assets/${(p as any).imageUrl}`,
+    price: (p as any).price ?? 0n,
   }));
 
   if (isError) {

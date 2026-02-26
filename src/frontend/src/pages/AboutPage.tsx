@@ -4,7 +4,7 @@ import Process from '../components/Process';
 import Team from '../components/Team';
 import Footer from '../components/Footer';
 import { useActor } from '../hooks/useActor';
-import { useGetAboutSection } from '../hooks/useQueries';
+import { useGetAboutSection, useGetTeamMembers } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Media Layout Components
@@ -201,9 +201,16 @@ export default function AboutPage() {
   const { isFetching } = useActor();
   const { data: aboutSection, isLoading: aboutLoading } = useGetAboutSection();
 
+  const introHeading = aboutSection?.introductoryHeading || 'Doanh nghiệp Người Cầm Đuốc';
+  const mainDescription = aboutSection?.mainDescription || 'Với trang trại rượu được thành lập từ năm 1994, công ty rượu Người Cầm Đuốc được thành lập từ vùng rượu nổi tiếng thế giới – thung lũng sông Coal, thuộc tiểu bang Tasmania, Úc Đại Lợi. Trang trại rượu nhỏ \'ese được chăm sóc theo phương pháp thuần tự nhiên (zen farming), để cao và tôn trọng đất mẹ và sự kì diệu của quả nho hóa.';
+  const mediaSections = aboutSection?.mediaSections || [];
+
+  const { data: members, isLoading: teamLoading } = useGetTeamMembers();
+
+  // Run observer after 'members' is available so dynamically inserted .fade-in-section nodes get observed
   useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
-    
+
     const observerOptions = {
       threshold: 0.1,
       rootMargin: '0px 0px -100px 0px'
@@ -221,7 +228,7 @@ export default function AboutPage() {
     sections.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
-  }, [aboutSection]);
+  }, [aboutSection, members?.length]);
 
   // If actor is fetching but we already have aboutSection data, allow render
   if (isFetching && !aboutSection) {
@@ -234,10 +241,6 @@ export default function AboutPage() {
       </div>
     );
   }
-
-  const introHeading = aboutSection?.introductoryHeading || 'Doanh nghiệp Người Cầm Đuốc';
-  const mainDescription = aboutSection?.mainDescription || 'Với trang trại rượu được thành lập từ năm 1994, công ty rượu Người Cầm Đuốc được thành lập từ vùng rượu nổi tiếng thế giới – thung lũng sông Coal, thuộc tiểu bang Tasmania, Úc Đại Lợi. Trang trại rượu nhỏ \'ese được chăm sóc theo phương pháp thuần tự nhiên (zen farming), để cao và tôn trọng đất mẹ và sự kì diệu của quả nho hóa.';
-  const mediaSections = aboutSection?.mediaSections || [];
 
   return (
     <>
@@ -324,7 +327,7 @@ export default function AboutPage() {
         )}
         {/* Process and Team Sections */}
         {/* <Process /> */}
-        <Team />
+        <Team members={members ?? []} isLoading={teamLoading} />
       </main>
       <Footer />
     </>
