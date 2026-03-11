@@ -21,10 +21,12 @@ export default function ArticleDetailPage() {
     }
 
     return article.content.map((item: any, index: number) => {
+      const elements: React.ReactNode[] = [];
+
       // If there's a title, render it as a heading
       if (item.title) {
-        return (
-          <h2 key={index} className="text-2xl font-bold text-foreground mt-8 mb-4">
+        elements.push(
+          <h2 key={`${index}-title`} className="text-2xl font-bold text-foreground mt-8 mb-4">
             {item.title}
           </h2>
         );
@@ -35,8 +37,8 @@ export default function ArticleDetailPage() {
         const isVideo = item.mediaType && (item.mediaType.toLowerCase().includes('video') || item.mediaUrl.endsWith('.mp4'));
 
         if (isVideo) {
-          return (
-            <div key={index} className="my-8">
+          elements.push(
+            <div key={`${index}-video`} className="my-8">
               <video
                 src={item.mediaUrl}
                 controls
@@ -51,8 +53,8 @@ export default function ArticleDetailPage() {
           );
         } else {
           // Default to image
-          return (
-            <figure key={index} className="my-8">
+          elements.push(
+            <figure key={`${index}-image`} className="my-8">
               <img
                 src={item.mediaUrl}
                 alt={item.title || 'Article content'}
@@ -66,19 +68,17 @@ export default function ArticleDetailPage() {
             </figure>
           );
         }
-      }
-
-      // If there's only description (text content), render as paragraph
-      if (item.description) {
-        return (
-          <p key={index} className="text-foreground/80 leading-relaxed mb-4 whitespace-pre-wrap">
+      } else if (item.description) {
+        // If there's only description (text content), render as paragraph
+        elements.push(
+          <p key={`${index}-text`} className="text-foreground/80 leading-relaxed mb-4 whitespace-pre-wrap">
             {item.description}
           </p>
         );
       }
 
-      return null;
-    });
+      return elements.length > 0 ? elements : null;
+    }).flat();
   };
 
   return (
@@ -145,6 +145,17 @@ export default function ArticleDetailPage() {
               <div className="prose prose-invert max-w-none">
                 {renderContent(article)}
               </div>
+
+              {/* Back Button */}
+              <div className="flex justify-end mt-12 pt-8 border-t border-border">
+                <button
+                  onClick={handleGoBack}
+                  className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                  Quay lại
+                </button>
+              </div>
             </article>
           )}
 
@@ -154,17 +165,6 @@ export default function ArticleDetailPage() {
               <p className="text-lg text-foreground/60">Bài viết không tồn tại</p>
             </div>
           )}
-
-          {/* Back Button */}
-            <div className="flex justify-end mb-8">
-            <button
-              onClick={handleGoBack}
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              Quay lại
-            </button>
-            </div>
         </div>
       </main>
       <Footer />
