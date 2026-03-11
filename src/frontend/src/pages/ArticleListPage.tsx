@@ -5,6 +5,34 @@ import Footer from '../components/Footer';
 import { useGetArticles, useGetTotalArticleCount } from '../hooks/useQueries';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+// Helper function to extract first thumbnail and description from article content
+function getArticleThumb(content: any[]) {
+  const result = {
+    imageUrl: '',
+    description: '',
+  };
+
+  if (!content || content.length === 0) {
+    return result;
+  }
+
+  for (const item of content) {
+    if (item.mediaUrl && item.mediaType && !result.imageUrl) {
+      result.imageUrl = item.mediaUrl;
+    }
+    if (item.description && !result.description) {
+      result.description = item.description;
+    }
+    
+    // If we have both, stop searching
+    if (result.imageUrl && result.description) {
+      break;
+    }
+  }
+
+  return result;
+}
+
 export default function ArticleListPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const navigate = useNavigate();
@@ -67,47 +95,69 @@ export default function ArticleListPage() {
           {!isLoading && !isError && articles.length > 0 && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                {articles.map((article) => (
-                  <article
-                    key={article.id}
-                    onClick={() => handleArticleClick(Number(article.id))}
-                    className="group bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                  >
-                    <div className="p-6">
-                      {/* Title */}
-                      <h2 className="text-2xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2">
-                        {article.title}
-                      </h2>
-
-                      {/* Publish Date */}
-                      <div className="text-sm text-foreground/60 mb-4">
-                        {new Date(Number(article.publishTime) / 1000000).toLocaleDateString('vi-VN', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })}
-                      </div>
-
-                      {/* Preview of content */}
-                      {article.content && article.content.length > 0 && (
-                        <div className="text-foreground/70 line-clamp-3 mb-4">
-                          {article.content
-                            .filter(item => 'text' in item)
-                            .map(item => (item as any).text)
-                            .join(' ')
-                            .substring(0, 150)}
-                          ...
+                {articles.map((article) => {
+                  const { imageUrl, description } = getArticleThumb(article.content);
+                  
+                  return (
+                    <article
+                      key={article.id}
+                      onClick={() => handleArticleClick(Number(article.id))}
+                      className="group bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flex flex-col"
+                    >
+                      {/* Thumbnail Image */}
+                      {imageUrl && (
+                        <div className="relative w-full h-48 bg-muted overflow-hidden">
+                          <img
+                            src={imageUrl}
+                            alt={article.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
                         </div>
                       )}
 
-                      {/* Read More Link */}
-                      <div className="inline-flex items-center text-primary font-semibold group-hover:gap-2 transition-all">
-                        Đọc tiếp
-                        <ChevronRight className="w-4 h-4 ml-2" />
+                      <div className="p-6 flex flex-col flex-grow">
+                        {/* Title */}
+                        <h2 className="text-2xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                          {article.title}
+                        </h2>
+
+                        {/* Publish Date */}
+                        <div className="text-sm text-foreground/60 mb-4">
+                          {new Date(Number(article.publishTime) / 1000000).toLocaleDateString('vi-VN', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </div>
+
+                        {/* Description from content */}
+                        {description && (
+                          <div className="text-foreground/70 line-clamp-2 mb-4">
+                            {description}
+                          </div>
+                        )}
+
+                        {/* Preview of content (fallback if no description) */}
+                        {!description && article.content && article.content.length > 0 && (
+                          <div className="text-foreground/70 line-clamp-3 mb-4">
+                            {article.content
+                              .filter(item => 'text' in item)
+                              .map(item => (item as any).text)
+                              .join(' ')
+                              .substring(0, 150)}
+                            ...
+                          </div>
+                        )}
+
+                        {/* Read More Link */}
+                        <div className="inline-flex items-center text-primary font-semibold group-hover:gap-2 transition-all mt-auto">
+                          Đọc tiếp
+                          <ChevronRight className="w-4 h-4 ml-2" />
+                        </div>
                       </div>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </div>
 
               {/* Pagination */}
