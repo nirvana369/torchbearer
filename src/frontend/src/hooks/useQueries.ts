@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { ContentSection, FooterData, TeamMember, Product, UserProfile, IconLink, ContactLocation, FloatingBubbleConfig, Category, AboutSection, CustomerMessage, CartItem, MediaItem, AdminEntry, OrderStatus } from './../../../declarations/backend/backend.did';
+import type { ContentSection, FooterData, TeamMember, Product, UserProfile, IconLink, ContactLocation, FloatingBubbleConfig, Category, AboutSection, CustomerMessage, CartItem, MediaItem, AdminEntry, OrderStatus, Article, ArticleContent } from './../../../declarations/backend/backend.did';
 
 // User Profile Queries
 export function useGetCallerUserProfile() {
@@ -857,6 +857,106 @@ export function useUpdateProductPriceVisibility() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productPriceVisibility'] });
+    },
+  });
+}
+
+// Article Queries
+export function useGetArticles(page: number) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Article[]>({
+    queryKey: ['articles', 'paginated', page],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getArticlePage(BigInt(page));
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+export function useGetArticleById(id: number | null) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Article | null>({
+    queryKey: ['articles', 'detail', id],
+    queryFn: async () => {
+      if (!actor || id === null) throw new Error('Actor not available or ID is null');
+      const result = await actor.getArticleById(BigInt(id));
+      // return result ? (result as Article) : null;
+      return (result && (result as any).length) ? (result as any)[0] as Article : null;
+    },
+    enabled: !!actor && !isFetching && id !== null,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+export function useGetTotalArticleCount() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<bigint>({
+    queryKey: ['articles', 'count'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getTotalArticleCount();
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+// Article Mutations
+export function useAddArticle() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: {
+      title: string;
+      content: ArticleContent[];
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.addArticleItem(params.title, params.content);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+      queryClient.invalidateQueries({ queryKey: ['articles', 'count'] });
+    },
+  });
+}
+
+export function useUpdateArticle() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: {
+      id: bigint;
+      title: string;
+      content: ArticleContent[];
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.updateArticleItem(params.id, params.title, params.content);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+    },
+  });
+}
+
+export function useDeleteArticle() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deleteArticleItem(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+      queryClient.invalidateQueries({ queryKey: ['articles', 'count'] });
     },
   });
 }

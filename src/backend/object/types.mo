@@ -124,6 +124,21 @@ module {
     timestamp : Int;
   };
 
+  public type Article = {
+    id : Nat;
+    title : Text;
+    publishTime : Int;
+    updateTime : Int;
+    content : [ArticleContent];
+  };
+
+  public type ArticleContent = {
+    title : Text;
+    description : Text;
+    mediaUrl : Text;
+    mediaType : Text;
+  };
+
   public type AboutMediaSection = {
     title : Text;
     description : Text;

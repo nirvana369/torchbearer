@@ -28,6 +28,7 @@ const Header = () => {
     { label: 'Trang chủ', href: '/', isRoute: true },
     { label: 'Giới thiệu', href: '/about', isRoute: true },
     { label: 'Sản phẩm', href: '/product', isRoute: true },
+    { label: 'Bài viết', href: '/article', isRoute: true },
     { label: 'Thư viện', href: '/media', isRoute: true },
     { label: 'Liên hệ', href: '/contact', isRoute: true }
   ];

@@ -6,6 +6,7 @@ import Text "mo:core/Text";
 import AccessControl "authorization/access-control";
 import Array "mo:core/Array";
 import Iter "mo:core/Iter";
+import Time "mo:core/Time";
 import T "object/types";
 import { ObjectCRUD } "generic";
 import AdminCms "admin-cms";
@@ -23,6 +24,7 @@ persistent actor {
   var nextUserId = 1;
   var nextTeamMemberId = 1;
   var nextIconLinkId = 1;
+  var nextArticleId = 1;
 
   var showProductPrices = true;
   
@@ -34,6 +36,7 @@ persistent actor {
   let mediaItems = Map.empty<Nat, T.MediaItem>();
   let contentSections = Map.empty<Text, T.ContentSection>();
   let iconLinks = Map.empty<Nat, T.IconLink>();
+  let articles = Map.empty<Nat, T.Article>();
 
   var floatingBubbleConfig : T.FloatingBubbleConfig = {
     backgroundColor = "#FFA500";
@@ -71,6 +74,7 @@ persistent actor {
   transient let teamMemberManager = ObjectCRUD<Nat, T.TeamMember>(Map.empty<Nat, T.TeamMember>(), Nat.compare);
   transient let contentSectionManager = ObjectCRUD<Text, T.ContentSection>(contentSections, Text.compare);
   transient let iconLinkManager = ObjectCRUD<Nat, T.IconLink>(iconLinks, Nat.compare);
+  transient let articleManager = ObjectCRUD<Nat, T.Article>(articles, Nat.compare);
 
   let HERO_SECTION_KEY : Text = "hero_section";
   let ABOUT_SECTION_KEY : Text = "about_section";
@@ -217,6 +221,57 @@ persistent actor {
       Runtime.trap("Media item not found");
     };
     mediaManager.delete(id);
+  };
+
+
+  // Articles CRUD - Requires authentication (admin CMS operations)
+  public query func getTotalArticleCount() : async Nat {
+    articleManager.size();
+  };
+
+  public query func getArticlePage(page : Nat) : async [T.Article] {
+    articleManager.getListValues(page * 10, 10);
+  };
+
+  public query func getArticleById(id : Nat) : async ?T.Article {
+    articleManager.read(id);
+  };
+
+  public shared ({ caller }) func addArticleItem(title : Text, content : [T.ArticleContent]) : async () {
+    requireUserPermission(caller);
+    let newArticleItem : T.Article = {
+      id = nextArticleId;
+      title = title;
+      publishTime = Time.now();
+      updateTime = Time.now();
+      content = content;
+    };
+    articleManager.create(nextArticleId, newArticleItem);
+    nextArticleId += 1;
+  };
+
+  public shared ({ caller }) func updateArticleItem(id : Nat, title : Text, content : [T.ArticleContent]) : async () {
+    requireUserPermission(caller);
+    switch (articleManager.read(id)) {
+      case (null) { Runtime.trap("Article item not found") };
+      case (?item) {
+        let updatedItem = {
+          item with
+          title = title;
+          updateTime = Time.now();
+          content = content;
+        };
+        articleManager.update(id, updatedItem);
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteArticleItem(id : Nat) : async (Bool) {
+    requireUserPermission(caller);
+    if (not articleManager.isExist(id)) {
+      Runtime.trap("Article item not found");
+    };
+    articleManager.delete(id);
   };
 
   // Admin CMS Data - Requires authentication

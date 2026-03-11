@@ -22,6 +22,7 @@ import CustomerMessagesEditor from './CustomerMessagesEditor';
 import AdminManagementEditor from './AdminManagementEditor';
 import ProductSettingsEditor from './ProductSettingsEditor';
 import OrdersEditor from './OrdersEditor';
+import ArticleEditor from './ArticleEditor';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -88,6 +89,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="products">Sản phẩm</TabsTrigger>
             <TabsTrigger value="settings">Cài đặt SP</TabsTrigger>
             <TabsTrigger value="categories">Danh mục</TabsTrigger>
+            <TabsTrigger value="articles">Bài viết</TabsTrigger>
             {/* <TabsTrigger value="process">Quy trình</TabsTrigger> */}
             <TabsTrigger value="team">Đội ngũ</TabsTrigger>
             <TabsTrigger value="media">Media</TabsTrigger>
@@ -118,6 +120,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="categories">
             <CategoriesEditor />
+          </TabsContent>
+
+          <TabsContent value="articles">
+            <ArticleEditor />
           </TabsContent>
 
           {/* <TabsContent value="process">

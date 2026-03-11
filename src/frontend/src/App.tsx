@@ -10,6 +10,8 @@ import ContactPage from './pages/ContactPage';
 import CartPage from './pages/CartPage';
 import OrderPage from './pages/OrderPage';
 import MediaPage from './pages/MediaPage';
+import ArticleListPage from './pages/ArticleListPage';
+import ArticleDetailPage from './pages/ArticleDetailPage';
 import FloatingBubble from './components/FloatingBubble';
 import { InternetIdentityProvider } from "./hooks/useInternetIdentity";
 import { CartProvider } from './contexts/CartContext';
@@ -77,6 +79,18 @@ const mediaRoute = createRoute({
   component: MediaPage,
 });
 
+const articleRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/article',
+  component: ArticleListPage,
+});
+
+const articleDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/article/$id',
+  component: ArticleDetailPage,
+});
+
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
@@ -91,6 +105,8 @@ const routeTree = rootRoute.addChildren([
   cartRoute,
   orderRoute,
   mediaRoute,
+  articleRoute,
+  articleDetailRoute,
   adminRoute,
 ]);
 
@@ -101,16 +117,16 @@ function App() {
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <QueryClientProvider client={queryClient}>
         <InternetIdentityProvider 
-          // loginOptions={{
-          //   identityProvider:`http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943`
-          //   // identityProvider:`http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
-          // }}
-
           loginOptions={{
-            identityProvider: process.env.DFX_NETWORK === "ic"
-              ? `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
-              : "https://identity.ic0.app"
+            identityProvider:`http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943`
+            // identityProvider:`http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
           }}
+
+          // loginOptions={{
+          //   identityProvider: process.env.DFX_NETWORK === "ic"
+          //     ? `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
+          //     : "https://identity.ic0.app"
+          // }}
         >
           <CartProvider>
             <RouterProvider router={router} />
