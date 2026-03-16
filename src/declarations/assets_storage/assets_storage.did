@@ -1,0 +1,106 @@
+type Roles = 
+ variant {
+   admin;
+   anonymous;
+   storage;
+   superadmin;
+   user;
+ };
+type Result_4 = 
+ variant {
+   err: text;
+   ok: vec record {
+             text;
+             record {
+               text;
+               int;
+             };
+           };
+ };
+type Result_3 = 
+ variant {
+   err: text;
+   ok: FileChunk;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: FileInfo;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: bool;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok;
+ };
+type ProfileResult = 
+ record {
+   avgProcTime: int;
+   count: nat;
+   id: text;
+   totalProcTime: int;
+ };
+type FileStorage = 
+ service {
+   addAdmins: (admins: vec principal) -> (vec record {
+                                                text;
+                                                Roles;
+                                              });
+   /// Changes chunk size configuration
+   changeChunkSize: (size: nat) -> (Result);
+   clean: (isRemove: bool) -> (Result_4);
+   /// Deletes a file from storage
+   deleteFile: (key: text) -> (Result_1);
+   /// Returns canister ID
+   getCanisterId: () -> (text);
+   getFileChunk: (hash: text) -> (Result_3) query;
+   /// Retrieves a file from storage
+   getFileInfo: (key: text) -> (Result_2) query;
+   /// Returns profiler data
+   getProfiler: () -> (vec ProfileResult);
+   /// Returns RBAC roles
+   getRoles: () -> (vec record {
+                          text;
+                          Roles;
+                        }) query;
+   /// Returns storage information
+   getStorageInfo: () -> (record {
+                            cycle: text;
+                            mem: text;
+                          });
+   /// Returns version information
+   getVersion: () -> (text);
+   /// Checks if file exists
+   isExisted: (key: text) -> (Result_1) query;
+   listFiles: () -> (vec text);
+   /// Stores a file in the storage system
+   putFile: (key: text, fileData: FileChunk) -> (Result);
+   /// Stores a file in the storage system
+   registerUploadFile: (key: text, file: FileInfo) -> (Result);
+   watcherCallback: () -> (Result);
+   /// Returns caller's principal
+   whoami: () -> (text) query;
+ };
+type FileState = 
+ variant {
+   "empty";
+   ready;
+ };
+type FileInfo = 
+ record {
+   chunks: vec text;
+   lastTimeUpdate: int;
+   name: text;
+   size: nat;
+   state: FileState;
+ };
+type FileChunk = 
+ record {
+   data: blob;
+   id: nat;
+ };
+service : () -> FileStorage

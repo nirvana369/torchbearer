@@ -1,0 +1,255 @@
+type UserProfile = 
+ record {
+   email: text;
+   id: nat;
+   name: text;
+   "principal": text;
+   role: text;
+ };
+type TeamMember = 
+ record {
+   bio: text;
+   id: nat;
+   imageUrl: text;
+   name: text;
+   role: text;
+ };
+type TastingNote = 
+ record {
+   description: text;
+   id: nat;
+   imageUrl: text;
+   name: text;
+ };
+type SerializableAdminCMSData = 
+ record {
+   aboutSection: ContentSection;
+   contacts: vec ContactLocation;
+   floatingBubbleConfig: FloatingBubbleConfig;
+   footer: FooterData;
+   header: ContentSection;
+   heroSection: ContentSection;
+   iconLinks: vec IconLink;
+   media: vec MediaContent;
+   products: vec Product;
+   teamMembers: vec TeamMember;
+ };
+type Product = 
+ record {
+   categories: vec Category;
+   description: text;
+   id: nat;
+   imageUrl: text;
+   name: text;
+   paring: vec PairingFood;
+   price: nat;
+   tasting: vec TastingNote;
+ };
+type PairingFood = 
+ record {
+   description: text;
+   id: nat;
+   imageUrl: text;
+   name: text;
+ };
+type OrderStatus = 
+ variant {
+   cancelled;
+   completed;
+   pending;
+ };
+type OrderItem = 
+ record {
+   product: Product;
+   quantity: nat;
+   totalPrice: nat;
+ };
+type Order = 
+ record {
+   customerEmail: text;
+   customerName: text;
+   customerPhone: text;
+   id: nat;
+   items: vec OrderItem;
+   status: OrderStatus;
+   timestamp: int;
+   totalAmount: nat;
+ };
+type MediaItem = 
+ record {
+   caption: text;
+   description: text;
+   id: nat;
+   mediaType: text;
+   uploadTimestamp: int;
+   url: text;
+ };
+type MediaContent = 
+ record {
+   mediaType: text;
+   url: text;
+ };
+type IconLink = 
+ record {
+   icon: text;
+   id: nat;
+   link: text;
+ };
+type FooterData = 
+ record {
+   copyright: text;
+   links: vec text;
+   socialMedia: vec text;
+ };
+type FloatingBubbleConfig = 
+ record {
+   backgroundColor: text;
+   hotlineNumberOverride: text;
+   icon: text;
+   isEnabled: bool;
+ };
+type CustomerMessage = 
+ record {
+   email: text;
+   id: nat;
+   message: text;
+   name: text;
+   phone: text;
+   timestamp: int;
+ };
+type ContentSection = 
+ record {
+   content: text;
+   mediaUrl: text;
+   title: text;
+ };
+type ContactLocation = 
+ record {
+   address: text;
+   email: text;
+   id: nat;
+   isHeadOffice: bool;
+   mapUrl: text;
+   name: text;
+   phone: text;
+ };
+type Category = 
+ record {
+   id: nat;
+   name: text;
+ };
+type CartItem = 
+ record {
+   product: Product;
+   quantity: nat;
+ };
+type ArticleContent = 
+ record {
+   description: text;
+   mediaType: text;
+   mediaUrl: text;
+   title: text;
+ };
+type Article = 
+ record {
+   content: vec ArticleContent;
+   id: nat;
+   publishTime: int;
+   title: text;
+   updateTime: int;
+ };
+type AdminEntry = record {principalId: text;};
+type AboutSection = 
+ record {
+   introductoryHeading: text;
+   mainDescription: text;
+   mediaSections: vec AboutMediaSection;
+ };
+type AboutMediaSection = 
+ record {
+   description: text;
+   mediaType: text;
+   mediaUrl: text;
+   title: text;
+ };
+service : {
+  addAdmin: ("principal": text) -> ();
+  addArticleItem: (title: text, content: vec ArticleContent) -> ();
+  addCategory: (name: text) -> ();
+  addContact: (newContact: ContactLocation) -> ();
+  addMediaItem: (url: text, caption: text, description: text, mediaType:
+   text) -> ();
+  addProduct: (product: Product) -> ();
+  cancelOrder: (orderId: nat) -> ();
+  deleteArticleItem: (id: nat) -> (bool);
+  deleteCategory: (categoryId: nat) -> (bool);
+  deleteContact: (id: nat) -> (bool);
+  deleteCustomerMessage: (id: nat) -> (bool);
+  deleteMediaItem: (id: nat) -> (bool);
+  deleteOrder: (orderId: nat) -> (bool);
+  deleteProduct: (id: nat) -> (bool);
+  getAboutSection: () -> (AboutSection) query;
+  getAdminCMSData: () -> (SerializableAdminCMSData) query;
+  getAdmins: () -> (vec AdminEntry) query;
+  getAllCustomerMessages: () -> (vec record {
+                                       nat;
+                                       CustomerMessage;
+                                     }) query;
+  getArticleById: (id: nat) -> (opt Article) query;
+  getArticlePage: (page: nat) -> (vec Article) query;
+  getCallerUserProfile: () -> (opt UserProfile) query;
+  getCategories: () -> (vec record {
+                              nat;
+                              Category;
+                            }) query;
+  getContacts: () -> (vec ContactLocation) query;
+  getCustomerMessages: (page: nat) -> (vec CustomerMessage) query;
+  getFloatingBubbleConfig: () -> (FloatingBubbleConfig) query;
+  getFooterData: () -> (FooterData) query;
+  getHeadOfficeContact: () -> (opt ContactLocation) query;
+  getHeader: () -> (ContentSection) query;
+  getHeroSection: () -> (ContentSection) query;
+  getIconLinks: () -> (vec IconLink) query;
+  getMediaItems: (page: nat) -> (vec MediaItem) query;
+  getMediaPage: (page: nat) -> (vec MediaItem) query;
+  getOrderById: (id: nat) -> (opt Order) query;
+  getOrders: (page: nat) -> (vec Order) query;
+  getProductByName: (name: text) -> (opt Product) query;
+  getProductPriceVisibility: () -> (bool) query;
+  getProducts: () -> (vec record {
+                            nat;
+                            Product;
+                          }) query;
+  getProductsByCategory: (categoryId: text) -> (vec Product) query;
+  getTeamMembers: () -> (vec TeamMember) query;
+  getTotalArticleCount: () -> (nat) query;
+  getTotalMediaCount: () -> (nat) query;
+  getTotalMessageCount: () -> (nat) query;
+  getTotalOrderCount: () -> (nat) query;
+  getUserProfile: (user: principal) -> (opt UserProfile) query;
+  ping: () -> (text);
+  removeAdmin: ("principal": principal) -> ();
+  resetToDefault: () -> ();
+  saveCallerUserProfile: (profile: UserProfile) -> ();
+  setHeadOffice: (id: nat) -> ();
+  submitCustomerMessage: (message: CustomerMessage) -> ();
+  submitOrder: (customerName: text, customerEmail: text, customerPhone: 
+   text, items: vec CartItem) -> ();
+  updateAboutSection: (about: AboutSection) -> ();
+  updateArticleItem: (id: nat, title: text, content: vec ArticleContent) ->
+   ();
+  updateCategory: (category: Category) -> ();
+  updateContact: (updatedContact: ContactLocation) -> ();
+  updateFloatingBubbleConfig: (config: FloatingBubbleConfig) -> ();
+  updateFooterData: (footer: FooterData) -> ();
+  updateHeader: (header: ContentSection) -> ();
+  updateHeroSection: (hero: ContentSection) -> ();
+  updateIconLinks: (links: vec IconLink) -> ();
+  updateMedia: (media: vec MediaItem) -> ();
+  updateMediaItem: (id: nat, url: text, caption: text, description: text) ->
+   ();
+  updateOrderStatus: (orderId: nat, status: OrderStatus) -> ();
+  updateProduct: (product: Product) -> ();
+  updateProductPriceVisibility: (showPrices: bool) -> ();
+  updateTeamMembers: (members: vec TeamMember) -> ();
+}

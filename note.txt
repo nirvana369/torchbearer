@@ -38,3 +38,7 @@ dfx canister install assets --mode upgrade --network ic
 
 dfx canister install [backend/frontend/assets] --mode [install/reinstall/upgrade] --network ic
 dfx canister install [backend/frontend/assets] --mode [install/reinstall/upgrade] --network ic
+
+dfx canister install frontend --mode reinstall --network ic
+dfx canister install backend --mode reinstall --network ic
+dfx canister install assets --mode reinstall --network ic
